@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build plugin
+        run: npm run build
+
+      # 개인 계정 소유의 private 저장소에서는 GitHub Artifact Attestation
+      # 기능 자체를 지원하지 않는다. 그래서 attestation은 저장소가 public일
+      # 때만 시도하고, 빌드/릴리즈는 visibility와 무관하게 항상 진행한다.
+      - name: Check repo visibility
+        id: visibility
+        run: |
+          visibility=$(gh repo view "${{ github.repository }}" --json visibility -q .visibility)
+          echo "is-public=$([ "$visibility" = "PUBLIC" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Attest build provenance
+        if: steps.visibility.outputs.is-public == 'true'
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            dist/main.js
+            dist/manifest.json
+            dist/styles.css
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          gh release create "$tag" \
+            --title "$tag" \
+            --generate-notes \
+            dist/main.js \
+            dist/manifest.json \
+            dist/styles.css

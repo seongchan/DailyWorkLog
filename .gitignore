@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.js.map
+
+# Internal-only planning docs — not part of the public repo.
+ref_docs/
+
+# OS / editor / personal tool config — not part of the public repo.
+# (.gitignore, .agents/, .github/ are intentionally NOT listed here — they're
+# real project docs/workflows and should stay tracked.)
+.DS_Store
+.claude/
+.vscode/
+.idea/
