@@ -16,7 +16,7 @@ export class DailyWorkLogSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("마커 언어 (Marker language)")
+			.setName("언어")
 			.setDesc(
 				"새 일일 노트를 생성할 때 삽입되는 _Event/_ToDo/_Diary 마커의 표시 언어입니다. " +
 					"언어를 바꿔도 기존 파일에 쓰인 다른 언어 마커는 계속 인식됩니다."

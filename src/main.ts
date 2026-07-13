@@ -15,19 +15,19 @@ export default class DailyWorkLogPlugin extends Plugin {
 		this.registerView(VIEW_TYPE_DAILY_WORK_LOG, (leaf) => new DailyWorkLogView(leaf, this));
 		this.registerView(VIEW_TYPE_DASHBOARD, (leaf) => new DashboardView(leaf, this));
 
-		this.addRibbonIcon("calendar-clock", "Daily Work Log 대시보드 열기", () => {
+		this.addRibbonIcon("calendar-clock", "대시보드 열기", () => {
 			void this.activateDashboard();
 		});
 
 		this.addCommand({
-			id: "open-daily-work-log-view",
-			name: "Daily Work Log 사이드바 열기",
+			id: "open-sidebar",
+			name: "사이드바 열기",
 			callback: () => void this.activateView(),
 		});
 
 		this.addCommand({
-			id: "open-daily-work-log-dashboard",
-			name: "Daily Work Log 대시보드 열기",
+			id: "open-dashboard",
+			name: "대시보드 열기",
 			callback: () => void this.activateDashboard(),
 		});
 
@@ -45,7 +45,8 @@ export default class DailyWorkLogPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const loadedData = (await this.loadData()) as Partial<DailyWorkLogSettings> | null;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
 	}
 
 	async saveSettings(): Promise<void> {
@@ -104,7 +105,7 @@ export default class DailyWorkLogPlugin extends Plugin {
 			await leaf.setViewState({ type: VIEW_TYPE_DAILY_WORK_LOG, active: true });
 		}
 
-		workspace.revealLeaf(leaf);
+		void workspace.revealLeaf(leaf);
 	}
 
 	/** Opens the Dashboard as a normal tab in the main workspace area (not the sidebar). */
@@ -117,6 +118,6 @@ export default class DailyWorkLogPlugin extends Plugin {
 			await leaf.setViewState({ type: VIEW_TYPE_DASHBOARD, active: true });
 		}
 
-		workspace.revealLeaf(leaf);
+		void workspace.revealLeaf(leaf);
 	}
 }
