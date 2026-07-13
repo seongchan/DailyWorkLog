@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Work Log — Dashboard View Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════
+       Design System Variables (System Theme Adaptive)
+    ═══════════════════════════════════════════════════ */
+    :root {
+      /* Default Light Mode Theme colors */
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-code: #f1f5f9;
+      --border-ui: #e2e8f0;
+      
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-accent: #6366f1; /* Purple/Indigo accent based on screenshot */
+      
+      --badge-green-bg: #d1f2e5;
+      --badge-green-text: #0f5132;
+      
+      --accent-color: #6366f1;
+      --accent-color-hover: #4f46e5;
+      
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    /* Dark Mode variables - aligned with the user's attachment screenshot */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-page: #111111;
+        --bg-card: #1a1a1a;
+        --bg-code: #242424;
+        --border-ui: #2a2a2a;
+        
+        --text-main: #e2e8f0;
+        --text-muted: #888888;
+        --text-accent: #7e57c2;
+        
+        --badge-green-bg: #132d21;
+        --badge-green-text: #52c41a;
+        
+        --accent-color: #7e57c2;
+        --accent-color-hover: #9575cd;
+        
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    /* Manual Class theme override for demonstration/testing */
+    body.theme-light {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-code: #f1f5f9;
+      --border-ui: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-accent: #6366f1;
+      --badge-green-bg: #d1f2e5;
+      --badge-green-text: #0f5132;
+      --accent-color: #6366f1;
+      --accent-color-hover: #4f46e5;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    body.theme-dark {
+      --bg-page: #111111;
+      --bg-card: #1a1a1a;
+      --bg-code: #242424;
+      --border-ui: #2a2a2a;
+      --text-main: #e2e8f0;
+      --text-muted: #888888;
+      --text-accent: #7e57c2;
+      --badge-green-bg: #132d21;
+      --badge-green-text: #52c41a;
+      --accent-color: #7e57c2;
+      --accent-color-hover: #9575cd;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Base Styles
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* Outer Wrapper representing Obsidian Main Workspace */
+    .workspace-wrapper {
+      width: 100%;
+      max-width: 1100px;
+      padding: 30px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       1. Top Breadcrumbs & Header Actions
+    ═══════════════════════════════════════════════════ */
+    .top-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .breadcrumbs span { cursor: pointer; }
+    .breadcrumbs span:hover { color: var(--text-main); }
+    .breadcrumbs .separator { color: var(--text-muted); opacity: 0.5; }
+
+    .meta-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .control-btn {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-ui);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .control-btn:hover {
+      background: var(--bg-code);
+      border-color: var(--text-muted);
+    }
+    .select-dropdown {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-ui);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       2. Main Title Section
+    ═══════════════════════════════════════════════════ */
+    .dashboard-title-area {
+      margin-top: 5px;
+    }
+    .dashboard-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .dashboard-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       3. 4-Column Metric Cards (Matches Screenshot)
+    ═══════════════════════════════════════════════════ */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 850px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+
+    .metric-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-ui);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: var(--card-shadow);
+    }
+    .card-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .card-icon {
+      font-size: 14px;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+    .card-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .card-value {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .card-value-suffix {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .card-change-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background-color: var(--badge-green-bg);
+      color: var(--badge-green-text);
+      display: inline-block;
+      margin-top: 8px;
+      align-self: flex-start;
+    }
+    .card-footer {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      border-top: 1px solid var(--border-ui);
+      padding-top: 8px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       4. File Type Distribution (Matches Screenshot)
+    ═══════════════════════════════════════════════════ */
+    .distribution-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-ui);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+    }
+    .dist-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .dist-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .dist-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    
+    /* Segmented Multi-Color Progress Bar */
+    .multi-progress-bar {
+      height: 10px;
+      background: var(--border-ui);
+      border-radius: 5px;
+      overflow: hidden;
+      display: flex;
+      margin-bottom: 18px;
+    }
+    .progress-segment {
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+
+    /* Segment Legend Grid */
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .legend-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .legend-label-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+    .legend-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+    .legend-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .legend-percentage {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       5. Bottom Layout (2 Columns)
+    ═══════════════════════════════════════════════════ */
+    .bottom-layout {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .bottom-layout { grid-template-columns: 1fr; }
+    }
+
+    .bottom-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-ui);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-ui);
+      padding-bottom: 10px;
+    }
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* ─── Space Usage Analysis / Recent Notes Cards ─── */
+    .usage-cards-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 480px) {
+      .usage-cards-container { grid-template-columns: 1fr; }
+    }
+    
+    /* Card design mimicking screenshot's treemap block */
+    .usage-card {
+      background-color: var(--accent-color);
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 120px;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .usage-card:hover {
+      opacity: 0.9;
+      transform: scale(0.99);
+    }
+    .usage-card-title {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .usage-card-meta {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-top: auto;
+    }
+
+    /* ─── Right Sidebar: Vault Info (Matches Screenshot) */
+    .vault-info-section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .info-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .info-value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .path-code-block {
+      background-color: var(--bg-code);
+      border: 1px solid var(--border-ui);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 11px;
+      word-break: break-all;
+      color: var(--text-muted);
+    }
+    .vault-action-btn {
+      width: 100%;
+      background: var(--bg-code);
+      border: 1px solid var(--border-ui);
+      color: var(--text-main);
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .vault-action-btn:hover {
+      background: var(--border-ui);
+    }
+
+    /* ─── Detail Modal overlay ──────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .detail-modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border-ui);
+      border-radius: 12px;
+      width: 500px;
+      max-width: 100%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-ui);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title { font-size: 14px; font-weight: 700; }
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .modal-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-ui);
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <div class="workspace-wrapper">
+
+    <!-- 1. Top Breadcrumbs & Header Actions -->
+    <div class="top-meta-bar">
+      <div class="breadcrumbs">
+        <span>📁 Vault</span>
+        <span class="separator">&gt;</span>
+        <span id="bcSub">메모</span>
+        <span class="separator">&gt;</span>
+        <span style="font-weight: 600; color: var(--text-main);" id="bcTitle">Daily Work Log 대시보드</span>
+      </div>
+      <div class="meta-controls">
+        <select class="select-dropdown" id="selPeriod" onchange="changePeriod()">
+          <option value="30">Last 30 days</option>
+          <option value="90" selected>Last 90 days</option>
+        </select>
+        <button class="control-btn" onclick="refreshData()" id="btnRefresh">
+          <span>🔄</span> <span id="lblRefresh">Refresh</span>
+        </button>
+        <button class="control-btn" onclick="toggleTheme()" id="btnTheme">
+          <span>🌓</span> <span id="lblTheme">Light Mode</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Main Title Section -->
+    <div class="dashboard-title-area">
+      <h1 class="dashboard-title" id="mainTitle">Daily Work Log</h1>
+      <div class="dashboard-subtitle" id="mainSub">Last scan - 04:45 AM · 42 files analyzed</div>
+    </div>
+
+    <!-- 3. 4-Column Metric Cards -->
+    <div class="cards-grid">
+      
+      <!-- Card 1: Total Notes -->
+      <div class="metric-card">
+        <div class="card-top-row">
+          <span class="card-label" id="lblCardNotes">Total Daily Notes</span>
+          <span class="card-icon">📄</span>
+        </div>
+        <div class="card-value-row">
+          <span class="card-value" id="valCardNotes">42</span>
+          <span class="card-value-suffix" id="valCardNotesSuffix">files</span>
+        </div>
+        <span class="card-change-badge">+5 in 7 days</span>
+        <span class="card-footer" id="footCardNotes">12 months continuous usage</span>
+      </div>
+
+      <!-- Card 2: Streak -->
+      <div class="metric-card">
+        <div class="card-top-row">
+          <span class="card-label" id="lblCardStreak">Current Streak</span>
+          <span class="card-icon">🔥</span>
+        </div>
+        <div class="card-value-row">
+          <span class="card-value" id="valCardStreak">5</span>
+          <span class="card-value-suffix" id="valCardStreakSuffix">days</span>
+        </div>
+        <span class="card-change-badge">Active streak</span>
+        <span class="card-footer" id="footCardStreak">Max recorded streak: 12 days</span>
+      </div>
+
+      <!-- Card 3: To-Do completion -->
+      <div class="metric-card">
+        <div class="card-top-row">
+          <span class="card-label" id="lblCardTodo">To-Do Rate</span>
+          <span class="card-icon">☑</span>
+        </div>
+        <div class="card-value-row">
+          <span class="card-value" id="valCardTodo">78</span>
+          <span class="card-value-suffix">%</span>
+        </div>
+        <span class="card-change-badge" style="background-color: var(--accent-muted); color: var(--accent-text);">Good</span>
+        <span class="card-footer" id="footCardTodo">94 completed / 120 total</span>
+      </div>
+
+      <!-- Card 4: Event Hours -->
+      <div class="metric-card">
+        <div class="card-top-row">
+          <span class="card-label" id="lblCardHours">Event Hours</span>
+          <span class="card-icon">⏱</span>
+        </div>
+        <div class="card-value-row">
+          <span class="card-value" id="valCardHours">64.5</span>
+          <span class="card-value-suffix">hours</span>
+        </div>
+        <span class="card-change-badge">+12.4h this week</span>
+        <span class="card-footer" id="footCardHours">Daily average: 2.1 hours</span>
+      </div>
+
+    </div>
+
+    <!-- 4. File Type / Category Distribution -->
+    <div class="distribution-card">
+      <div class="dist-title-row">
+        <span class="dist-title" id="lblDistTitle">Category Distribution</span>
+      </div>
+      <div class="dist-subtitle" id="lblDistSub">By total hours recorded in events</div>
+      
+      <!-- Multi-segment progress bar -->
+      <div class="multi-progress-bar">
+        <div class="progress-segment" style="width: 45%; background: #d0e1fd;" id="segWork"></div>
+        <div class="progress-segment" style="width: 20%; background: #ebd3f8;" id="segStudy"></div>
+        <div class="progress-segment" style="width: 15%; background: #d1f2e5;" id="segRest"></div>
+        <div class="progress-segment" style="width: 12%; background: #fdecd0;" id="segReading"></div>
+        <div class="progress-segment" style="width: 8%;  background: #e2e5e9;" id="segExercise"></div>
+      </div>
+
+      <!-- Segment Legend Grid -->
+      <div class="legend-grid">
+        <div class="legend-item">
+          <div class="legend-label-row">
+            <div class="legend-dot" style="background: #d0e1fd;"></div>
+            <span id="lblLegWork">Work</span>
+          </div>
+          <div class="legend-value-row">
+            <span>29.0 h</span>
+            <span class="legend-percentage">45%</span>
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-label-row">
+            <div class="legend-dot" style="background: #ebd3f8;"></div>
+            <span id="lblLegStudy">Study</span>
+          </div>
+          <div class="legend-value-row">
+            <span>12.9 h</span>
+            <span class="legend-percentage">20%</span>
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-label-row">
+            <div class="legend-dot" style="background: #d1f2e5;"></div>
+            <span id="lblLegRest">Rest</span>
+          </div>
+          <div class="legend-value-row">
+            <span>9.7 h</span>
+            <span class="legend-percentage">15%</span>
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-label-row">
+            <div class="legend-dot" style="background: #fdecd0;"></div>
+            <span id="lblLegReading">Reading</span>
+          </div>
+          <div class="legend-value-row">
+            <span>7.7 h</span>
+            <span class="legend-percentage">12%</span>
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-label-row">
+            <div class="legend-dot" style="background: #e2e5e9;"></div>
+            <span id="lblLegExercise">Exercise</span>
+          </div>
+          <div class="legend-value-row">
+            <span>5.2 h</span>
+            <span class="legend-percentage">8%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Bottom Layout (2 Columns) -->
+    <div class="bottom-layout">
+      
+      <!-- Space Usage Analysis (Left Panel) -->
+      <div class="bottom-panel">
+        <div class="panel-header">
+          <span class="panel-title" id="lblPanelLeft">Daily Breakdown &amp; History</span>
+        </div>
+        <div class="usage-cards-container" id="recentContainer">
+          <!-- Usage cards injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Vault Info (Right Panel) -->
+      <div class="bottom-panel">
+        <div class="panel-header">
+          <span class="panel-title" id="lblPanelRight">Vault Info</span>
+        </div>
+        <div class="vault-info-section">
+          
+          <div class="info-group">
+            <span class="info-label" id="lblInfoName">Vault Name</span>
+            <span class="info-value" id="valInfoName">메모</span>
+          </div>
+          
+          <div class="info-group">
+            <span class="info-label" id="lblInfoInit">Initialized</span>
+            <span class="info-value" id="valInfoInit">16 days ago</span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label" id="lblInfoPath">Absolute Path</span>
+            <div class="path-code-block">
+              /Users/checks/Library/CloudStorage/GoogleDrive-seongchan116@gmail.com/내 드라이브/OBSIDIAN_DATA/메모
+            </div>
+          </div>
+
+          <div class="info-group" style="margin-top: 8px; gap: 8px;">
+            <button class="vault-action-btn" onclick="copyPath()" id="btnCopyPath">Copy path</button>
+            <button class="vault-action-btn" onclick="revealInFinder()" id="btnReveal">Reveal in Finder</button>
+          </div>
+
+          <div style="margin-top: 14px; border-top:1px solid var(--border-ui); padding-top: 14px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+            <span id="lblInfoHealth">Health</span>
+            <span style="font-weight: 700; color: var(--badge-green-text);" id="valInfoHealth">Good - 98</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Detail Modal Overlay -->
+  <div class="modal-overlay" id="detailOverlay" onclick="handleOverlayClick(event)">
+    <div class="detail-modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">2026-07-14.md</span>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="modal-section-title" id="lblModalEvent">⏱ 이벤트 기록</div>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:6px;" id="modalEventList"></ul>
+        </div>
+        <div>
+          <div class="modal-section-title" id="lblModalTodo">☑ 할 일</div>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:6px;" id="modalTodoList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ JavaScript ══════════════════════════════════════════════ -->
+  <script>
+    const STRINGS = {
+      en: {
+        bcSub: "Memo",
+        bcTitle: "Daily Work Log Dashboard",
+        refresh: "Refresh",
+        themeLight: "Light Mode",
+        themeDark: "Dark Mode",
+        mainTitle: "Daily Work Log",
+        mainSub: "Last scan - 04:45 AM · 42 files analyzed",
+        
+        lblCardNotes: "Total Daily Notes",
+        valCardNotesSuffix: "files",
+        lblCardStreak: "Current Streak",
+        valCardStreakSuffix: "days",
+        lblCardTodo: "To-Do Rate",
+        lblCardHours: "Event Hours",
+        
+        lblDistTitle: "Category Distribution",
+        lblDistSub: "By total hours recorded in events",
+        
+        lblPanelLeft: "Daily Breakdown & History",
+        lblPanelRight: "Vault Info",
+        
+        lblInfoName: "Vault Name",
+        lblInfoInit: "Initialized",
+        lblInfoPath: "Absolute Path",
+        btnCopyPath: "Copy path",
+        btnReveal: "Reveal in Finder",
+        lblInfoHealth: "Health",
+        valInfoHealth: "Good - 98",
+        
+        lblModalEvent: "⏱ Event Records",
+        lblModalTodo: "☑ To-Do Items",
+        loading: "Refreshing..."
+      },
+      ko: {
+        bcSub: "메모",
+        bcTitle: "Daily Work Log 대시보드",
+        refresh: "새로고침",
+        themeLight: "라이트 모드",
+        themeDark: "다크 모드",
+        mainTitle: "Daily Work Log",
+        mainSub: "마지막 스캔 - 오전 04:45 · 42개 파일 분석됨",
+        
+        lblCardNotes: "총 일일 일지 수",
+        valCardNotesSuffix: "개",
+        lblCardStreak: "연속 작성일 (Streak)",
+        valCardStreakSuffix: "일 연속",
+        lblCardTodo: "할 일 완료율",
+        lblCardHours: "이벤트 기록 시간",
+        
+        lblDistTitle: "카테고리 누적 시간 비율",
+        lblDistSub: "이벤트에 기록된 총 누적 시간 기준",
+        
+        lblPanelLeft: "최근 작성된 일일 기록 현황",
+        lblPanelRight: "볼트 정보",
+        
+        lblInfoName: "볼트 이름",
+        lblInfoInit: "사용 기간",
+        lblInfoPath: "절대 경로",
+        btnCopyPath: "경로 복사",
+        btnReveal: "Finder에서 열기",
+        lblInfoHealth: "플러그인 상태",
+        valInfoHealth: "정상 - 98",
+        
+        lblModalEvent: "⏱ 이벤트 기록",
+        lblModalTodo: "☑ 할 일",
+        loading: "새로고침 중..."
+      }
+    };
+
+    let currentLang = 'ko';
+    let strings = STRINGS.ko;
+
+    const recentNotes = [
+      {
+        date: "2026-07-14.md",
+        meta: "2 Events · 3/4 To-Do",
+        events: [
+          { time: "09:00 - 10:30", desc: "주간 코드 리뷰 회의 참석" },
+          { time: "13:00 - 15:30", desc: "이벤트/할일 입력창 UI 설계" }
+        ],
+        todos: [
+          { text: "디자인 가이드라인 정리", done: true },
+          { text: "타임라인 목업 2열 최적화", done: true },
+          { text: "대시보드 뷰 목업 작성", done: true },
+          { text: "Obsidian API 연동 테스트", done: false }
+        ]
+      },
+      {
+        date: "2026-07-13.md",
+        meta: "2 Events · 2/3 To-Do",
+        events: [
+          { time: "10:00 - 12:00", desc: "Obsidian 리스너 버그 수정" },
+          { time: "14:00 - 16:00", desc: "코드 커버리지 유닛 테스트 추가" }
+        ],
+        todos: [
+          { text: "frontmatter 엄격 비교 테스트", done: true },
+          { text: "날짜 롤오버 버그 검증 추가", done: true },
+          { text: "에디터 라인 스탈 상태 방어 구현", done: false }
+        ]
+      },
+      {
+        date: "2026-07-12.md",
+        meta: "1 Event · 4/4 To-Do",
+        events: [
+          { time: "09:00 - 11:30", desc: "바닐라 캘린더 그리드 기능 개발" }
+        ],
+        todos: [
+          { text: "캘린더 UI 테마 연동 작업", done: true },
+          { text: "오늘 버튼 확인 스킵 처리", done: true },
+          { text: "설정 탭 다국어 번역 리소스 준비", done: true },
+          { text: "신규 노트 스켈레톤 이중 빈 줄 제거", done: true }
+        ]
+      },
+      {
+        date: "2026-07-11.md",
+        meta: "1 Event · 1/3 To-Do",
+        events: [
+          { time: "11:00 - 12:30", desc: "Obsidian API 연동 인터페이스 설계" }
+        ],
+        todos: [
+          { text: "리본 메뉴 아이콘 변경", done: true },
+          { text: "일일 노트 템플릿 마커 수정", done: false },
+          { text: "확인 다이얼로그 추가 구현", done: false }
+        ]
+      }
+    ];
+
+    function setLang(lang) {
+      currentLang = lang;
+      strings = STRINGS[lang];
+      applyStrings();
+    }
+
+    function applyStrings() {
+      document.getElementById('bcSub').textContent = strings.bcSub;
+      document.getElementById('bcTitle').textContent = strings.bcTitle;
+      document.getElementById('lblRefresh').textContent = strings.refresh;
+      
+      const isLight = document.body.classList.contains('theme-light');
+      document.getElementById('lblTheme').textContent = isLight ? strings.themeDark : strings.themeLight;
+
+      document.getElementById('mainTitle').textContent = strings.mainTitle;
+      document.getElementById('mainSub').textContent = strings.mainSub;
+
+      document.getElementById('lblCardNotes').textContent = strings.lblCardNotes;
+      document.getElementById('valCardNotesSuffix').textContent = strings.valCardNotesSuffix;
+      document.getElementById('lblCardStreak').textContent = strings.lblCardStreak;
+      document.getElementById('valCardStreakSuffix').textContent = strings.valCardStreakSuffix;
+      document.getElementById('lblCardTodo').textContent = strings.lblCardTodo;
+      document.getElementById('lblCardHours').textContent = strings.lblCardHours;
+
+      document.getElementById('lblDistTitle').textContent = strings.lblDistTitle;
+      document.getElementById('lblDistSub').textContent = strings.lblDistSub;
+
+      document.getElementById('lblPanelLeft').textContent = strings.lblPanelLeft;
+      document.getElementById('lblPanelRight').textContent = strings.lblPanelRight;
+
+      document.getElementById('lblInfoName').textContent = strings.lblInfoName;
+      document.getElementById('lblInfoInit').textContent = strings.lblInfoInit;
+      document.getElementById('lblInfoPath').textContent = strings.lblInfoPath;
+      document.getElementById('btnCopyPath').textContent = strings.btnCopyPath;
+      document.getElementById('btnReveal').textContent = strings.btnReveal;
+      
+      document.getElementById('lblInfoHealth').textContent = strings.lblInfoHealth;
+      document.getElementById('valInfoHealth').textContent = strings.valInfoHealth;
+
+      document.getElementById('lblModalEvent').textContent = strings.lblModalEvent;
+      document.getElementById('lblModalTodo').textContent = strings.lblModalTodo;
+      
+      renderRecentContainer();
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('theme-dark');
+      if (isDark) {
+        document.body.classList.remove('theme-dark');
+        document.body.classList.add('theme-light');
+      } else {
+        document.body.classList.remove('theme-light');
+        document.body.classList.add('theme-dark');
+      }
+      applyStrings();
+    }
+
+    function refreshData() {
+      const btn = document.getElementById('btnRefresh');
+      btn.disabled = true;
+      const originalText = document.getElementById('lblRefresh').textContent;
+      document.getElementById('lblRefresh').textContent = strings.loading;
+
+      setTimeout(() => {
+        btn.disabled = false;
+        document.getElementById('lblRefresh').textContent = originalText;
+      }, 800);
+    }
+
+    function renderRecentContainer() {
+      const container = document.getElementById('recentContainer');
+      container.innerHTML = '';
+      recentNotes.forEach(note => {
+        const div = document.createElement('div');
+        div.className = 'usage-card';
+        div.onclick = () => openModal(note);
+        div.innerHTML = `
+          <span class="usage-card-title">${note.date}</span>
+          <span class="usage-card-meta">${note.meta}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function openModal(note) {
+      document.getElementById('modalTitle').textContent = note.date;
+      
+      const evList = document.getElementById('modalEventList');
+      evList.innerHTML = '';
+      note.events.forEach(ev => {
+        const li = document.createElement('li');
+        li.style.padding = '4px 0';
+        li.innerHTML = `<strong style="color:var(--text-accent); margin-right:8px;">${ev.time}</strong> ${ev.desc}`;
+        evList.appendChild(li);
+      });
+
+      const todoList = document.getElementById('modalTodoList');
+      todoList.innerHTML = '';
+      note.todos.forEach(todo => {
+        const li = document.createElement('li');
+        li.style.display = 'flex';
+        li.style.alignItems = 'center';
+        li.style.gap = '8px';
+        li.style.padding = '2px 0';
+        li.innerHTML = `
+          <input type="checkbox" disabled ${todo.done ? 'checked' : ''} style="accent-color:var(--accent-color);">
+          <span style="${todo.done ? 'text-decoration:line-through;opacity:0.5;' : ''}">${todo.text}</span>
+        `;
+        todoList.appendChild(li);
+      });
+
+      document.getElementById('detailOverlay').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('detailOverlay').classList.remove('open');
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('detailOverlay')) {
+        closeModal();
+      }
+    }
+
+    function changePeriod() {
+      // Simulate period selection change
+      const period = document.getElementById('selPeriod').value;
+      if (period === '30') {
+        document.getElementById('valCardNotes').textContent = "14";
+        document.getElementById('mainSub').textContent = currentLang === 'ko' ? "마지막 스캔 - 오전 04:45 · 최근 30일 분석" : "Last scan - 04:45 AM · Recent 30 days scan";
+      } else {
+        document.getElementById('valCardNotes').textContent = "42";
+        document.getElementById('mainSub').textContent = currentLang === 'ko' ? "마지막 스캔 - 오전 04:45 · 42개 파일 분석됨" : "Last scan - 04:45 AM · 42 files analyzed";
+      }
+    }
+
+    function copyPath() {
+      alert("경로가 클립보드에 복사되었습니다.");
+    }
+
+    function revealInFinder() {
+      alert("파일 탐색기(Finder)에서 볼트 폴더를 엽니다.");
+    }
+
+    // Initialize layout & strings
+    setLang('ko');
+  </script>
+
+</body>
+</html>

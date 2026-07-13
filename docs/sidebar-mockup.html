@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Work Log — Sidebar UI Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════
+       Design System Variables (design.md 기준)
+    ═══════════════════════════════════════════════════ */
+    :root {
+      --bg-page:   #f8fafc;
+      --text-main: #0f172a;
+      --text-muted:#64748b;
+      --border-ui: #e2e8f0;
+      --card-bg:   #ffffff;
+
+      /* Action Button Specs — design.md §2.2 */
+      --btn-save-bg:     #e2e8f0;
+      --btn-save-text:   #1e293b;
+      --btn-save-border: #64748b;
+      --btn-save-hover:  #cbd5e1;
+
+      --btn-cancel-bg:     transparent;
+      --btn-cancel-border: #cbd5e1;
+      --btn-cancel-text:   #475569;
+      --btn-cancel-hover:  #f1f5f9;
+
+      --btn-delete-bg:     transparent;
+      --btn-delete-border: #fca5a5;
+      --btn-delete-text:   #991b1b;
+      --btn-delete-hover:  #fee2e2;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Page Layout
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      max-width: 1200px;
+      padding: 40px 20px 20px;
+      box-sizing: border-box;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid var(--border-ui);
+      padding-bottom: 20px;
+    }
+
+    .header-title h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Language Toggle in header */
+    .lang-toggle {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .lang-btn {
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-ui);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .lang-btn.active {
+      background: #1e293b;
+      color: #fff;
+      border-color: #1e293b;
+    }
+    .lang-btn:not(.active):hover { background: #f1f5f9; }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 40px;
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Left: Sidebar Simulator
+    ═══════════════════════════════════════════════════ */
+    .sidebar-mockup {
+      background-color: #ffffff;
+      border: 1px solid var(--border-ui);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06), 0 8px 10px -6px rgba(0,0,0,0.04);
+      height: 720px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Mock Header */
+    .mock-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid #eaeaea;
+      background: #fafafa;
+      flex-shrink: 0;
+    }
+    .mock-header-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .mock-header-btn {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .mock-header-btn:hover { background: #e2e8f0; color: #1e293b; }
+
+    /* Scrollable Body */
+    .mock-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    /* ─── Calendar ──────────────────────────────────── */
+    .mock-calendar {
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid #eaeaea;
+      flex-shrink: 0;
+    }
+    .mock-cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .mock-cal-nav-btn {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 10px;
+      cursor: pointer;
+      color: #475569;
+    }
+    .mock-cal-nav-btn:hover { background: #e2e8f0; }
+    .mock-cal-today-btn {
+      background: transparent;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #3b82f6;
+      cursor: pointer;
+    }
+    .mock-cal-month {
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      color: #334155;
+      margin-bottom: 5px;
+    }
+    .mock-cal-weekdays, .mock-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      text-align: center;
+    }
+    .mock-cal-weekday { font-size: 8px; color: #94a3b8; padding: 1px 0; }
+    .mock-cal-cell {
+      font-size: 9px;
+      padding: 3px 0;
+      border-radius: 3px;
+      cursor: pointer;
+      color: #475569;
+      position: relative;
+    }
+    .mock-cal-cell:hover { background: #f1f5f9; }
+    .mock-cal-cell.today { font-weight: 700; color: #3b82f6; }
+    .mock-cal-cell.selected { background: #3b82f6; color: #fff; }
+    .mock-cal-cell.has-note::after {
+      content: '';
+      position: absolute;
+      bottom: 1px; left: 50%;
+      transform: translateX(-50%);
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: #3b82f6;
+    }
+    .mock-cal-cell.selected.has-note::after { background: #fff; }
+    .mock-cal-cell.empty { cursor: default; }
+    .mock-cal-cell.empty:hover { background: transparent; }
+
+    /* ─── Section Common ────────────────────────────── */
+    .mock-section { border-top: 1px solid #eaeaea; flex-shrink: 0; }
+    .mock-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #f8fafc;
+    }
+    .mock-section-title {
+      font-size: 9px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .mock-section-count { font-size: 9px; color: #94a3b8; font-weight: 400; }
+    .mock-section-add-btn {
+      background: transparent;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      padding: 2px 7px;
+      font-size: 10px;
+      color: #475569;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .mock-section-add-btn:hover { background: #f1f5f9; }
+
+    /* ─── Event Section ─────────────────────────────── */
+    .mock-event-list {
+      padding: 6px 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .mock-event-item {
+      display: flex;
+      flex-direction: column;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 5px 8px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .mock-event-item:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .mock-event-time { font-size: 9px; color: #94a3b8; }
+    .mock-event-desc { font-size: 11px; color: #334155; }
+
+    /* ─── To-Do Section ─────────────────────────────── */
+    .mock-todo-input-wrap { padding: 7px 12px 4px; }
+    .mock-todo-input {
+      width: 100%;
+      font-size: 10px;
+      padding: 5px 8px;
+      border: 1px solid #eaeaea;
+      border-radius: 4px;
+      background: #fff;
+      color: #334155;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .mock-todo-input:focus { border-color: #a0aec0; }
+    .mock-todo-input::placeholder { color: #cbd5e1; }
+
+    .mock-todo-list {
+      padding: 3px 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      list-style: none;
+    }
+    .mock-todo-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 5px;
+      border-radius: 3px;
+      transition: background 0.1s;
+    }
+    .mock-todo-item:hover { background: #f8fafc; }
+    .mock-todo-checkbox { cursor: pointer; accent-color: #64748b; }
+    .mock-todo-text { flex: 1; font-size: 11px; color: #2d3748; }
+    .mock-todo-text.done { text-decoration: line-through; color: #a0aec0; }
+    /* Minimal ✕ — design.md §4.1 */
+    .mock-todo-delete-btn {
+      border: none;
+      background: transparent;
+      color: #bfbfbf;
+      font-size: 10px;
+      padding: 2px 5px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s;
+    }
+    .mock-todo-item:hover .mock-todo-delete-btn { opacity: 1; }
+    .mock-todo-delete-btn:hover { color: #ef4444; }
+
+    /* ─── Modal Overlay (inside sidebar) ───────────── */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.open { display: flex; }
+
+    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+    @keyframes slideUp {
+      from { transform: translateY(14px); opacity: 0 }
+      to   { transform: translateY(0);    opacity: 1 }
+    }
+
+    /* Event Add/Edit Modal — design.md §4.2 / 팝업은 시스템 테마를 따름 */
+    .mock-modal {
+      background: Canvas;              /* 시스템 배경 */
+      color: CanvasText;               /* 시스템 텍스트 */
+      border-radius: 10px;
+      width: 260px;
+      max-width: calc(100% - 24px);    /* 사이드바 폭 초과 방지 */
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+      border: 1px solid rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: none;
+      animation: slideUp 0.25s cubic-bezier(0.16,1,0.3,1);
+    }
+    .mock-modal.visible { display: block; }
+
+    .mock-modal-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+    }
+    .mock-modal-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: CanvasText;
+    }
+    .mock-modal-body {
+      padding: 12px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .mock-modal-field { display: flex; flex-direction: column; gap: 4px; }
+    .mock-modal-label { font-size: 10px; font-weight: 600; color: CanvasText; opacity: 0.7; }
+    .mock-modal-time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+    .mock-modal-time-input {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1px solid rgba(0,0,0,0.18);
+      border-radius: 5px;
+      font-size: 12px;
+      font-family: inherit;
+      color: CanvasText;
+      background: Canvas;
+      outline: none;
+      min-width: 0;     /* grid 내 overflow 방지 */
+    }
+    .mock-modal-time-input:focus { border-color: #a0aec0; }
+    .mock-modal-textarea {
+      padding: 5px 8px;
+      border: 1px solid rgba(0,0,0,0.18);
+      border-radius: 5px;
+      font-size: 11px;
+      font-family: inherit;
+      color: CanvasText;
+      background: Canvas;
+      outline: none;
+      resize: vertical;
+      max-height: 90px;
+      min-height: 48px;
+    }
+    .mock-modal-textarea:focus { border-color: #a0aec0; }
+
+    /* Buttons — design.md §2.2 */
+    .mock-modal-buttons { display: flex; justify-content: flex-end; gap: 5px; margin-top: 6px; }
+    .mock-btn {
+      padding: 5px 11px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .mock-btn-save   { background: var(--btn-save-bg);   color: var(--btn-save-text);   border: 1px solid var(--btn-save-border); }
+    .mock-btn-save:hover { background: var(--btn-save-hover); }
+    .mock-btn-cancel { background: var(--btn-cancel-bg); color: var(--btn-cancel-text); border: 1px solid var(--btn-cancel-border); }
+    .mock-btn-cancel:hover { background: var(--btn-cancel-hover); }
+    .mock-btn-delete { background: var(--btn-delete-bg); color: var(--btn-delete-text); border: 1px solid var(--btn-delete-border); margin-right: auto; }
+    .mock-btn-delete:hover { background: var(--btn-delete-hover); }
+
+    /* Confirm Popup — design.md §4.3 / 시스템 테마 따름 */
+    .mock-confirm-modal {
+      background: Canvas;
+      color: CanvasText;
+      border-radius: 8px;
+      width: 230px;
+      max-width: calc(100% - 24px);
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 16px;
+      display: none;
+      animation: slideUp 0.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    .mock-confirm-modal.visible { display: block; }
+    .mock-confirm-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .mock-confirm-text  { font-size: 11px; color: #4a5568; line-height: 1.5; margin-bottom: 12px; }
+
+    /* ═══════════════════════════════════════════════════
+       Right: Control Panel
+    ═══════════════════════════════════════════════════ */
+    .control-panel { display: flex; flex-direction: column; gap: 24px; }
+
+    .control-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-ui);
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .control-card h3 {
+      margin: 0 0 14px;
+      font-size: 15px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-ui);
+      padding-bottom: 10px;
+    }
+
+    /* Interactive Trigger Buttons */
+    .interactive-buttons { display: flex; flex-direction: column; gap: 8px; }
+    .btn-trigger {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      text-align: left;
+      transition: all 0.15s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: inherit;
+    }
+    .btn-trigger:hover { background: #e2e8f0; border-color: #94a3b8; transform: translateY(-1px); }
+    .btn-trigger::after { content: "→"; font-weight: bold; color: #64748b; }
+
+    .info-alert {
+      background: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 10px 13px;
+      border-radius: 0 7px 7px 0;
+      font-size: 12px;
+      color: #0369a1;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    /* i18n String Table */
+    .i18n-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .i18n-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 5px 8px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border-ui);
+    }
+    .i18n-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+      vertical-align: middle;
+    }
+    .i18n-table tr:last-child td { border-bottom: none; }
+    .i18n-table td:first-child { font-weight: 500; color: #64748b; font-family: monospace; font-size: 10px; }
+    .badge-en { background: #dbeafe; color: #1d4ed8; border-radius: 3px; padding: 1px 5px; font-size: 9px; font-weight: 600; }
+    .badge-ko { background: #fce7f3; color: #9d174d; border-radius: 3px; padding: 1px 5px; font-size: 9px; font-weight: 600; }
+
+    /* Button Spec */
+    .btn-spec-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 12px;
+    }
+    .btn-spec-row:last-child { border-bottom: none; }
+    .btn-spec-label { width: 60px; color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
+    .btn-spec-demo { padding: 4px 12px; border-radius: 5px; font-size: 11px; font-weight: 500; cursor: default; }
+    .btn-spec-hex  { font-size: 10px; color: #94a3b8; font-family: monospace; }
+
+    /* Design Principles */
+    .principle-list { display: flex; flex-direction: column; gap: 9px; font-size: 12px; color: #334155; }
+    .principle-item { display: flex; gap: 9px; align-items: flex-start; line-height: 1.55; }
+    .principle-num {
+      background: #e2e8f0;
+      color: #475569;
+      border-radius: 50%;
+      width: 18px; height: 18px;
+      font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .changed-badge { font-size: 9px; background: #fef3c7; color: #92400e; border-radius: 3px; padding: 1px 5px; font-weight: 600; margin-left: 4px; }
+
+    footer {
+      margin-top: auto;
+      width: 100%;
+      max-width: 1200px;
+      padding: 36px 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-ui);
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ Header ═══════════════════════════════════════════════════ -->
+  <header>
+    <div class="header-container">
+      <div class="header-title">
+        <h1>Daily Work Log — 사이드바 UI 시안</h1>
+        <p>design.md 기준 · 인라인 입력 기능 &amp; 다국어 지원 검증용 목업</p>
+      </div>
+      <div class="lang-toggle">
+        <span style="font-size:11px;color:var(--text-muted);margin-right:4px;">언어 미리보기</span>
+        <button class="lang-btn active" id="btnEn" onclick="setLang('en')">English</button>
+        <button class="lang-btn"        id="btnKo" onclick="setLang('ko')">한국어</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-layout">
+
+    <!-- ══ Left: Sidebar Simulator ══════════════════════════════ -->
+    <div>
+      <div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Plugin UI Simulator</span>
+        <span style="font-size:10px;padding:2px 7px;border-radius:4px;background:#e2e8f0;color:#475569;font-weight:600;">White Theme</span>
+      </div>
+
+      <div class="sidebar-mockup" id="sidebarMockup">
+
+        <!-- Header -->
+        <div class="mock-header">
+          <h2 class="mock-header-title">2026-07-14 (Mon)</h2>
+          <button class="mock-header-btn" id="hdrTodayBtn">Today</button>
+        </div>
+
+        <!-- Body -->
+        <div class="mock-body">
+
+          <!-- Calendar -->
+          <div class="mock-calendar">
+            <div class="mock-cal-nav">
+              <button class="mock-cal-nav-btn">◀</button>
+              <button class="mock-cal-today-btn" id="calTodayBtn">Today</button>
+              <button class="mock-cal-nav-btn">▶</button>
+            </div>
+            <div class="mock-cal-month">2026. 7</div>
+            <div class="mock-cal-weekdays" id="calWeekdays"></div>
+            <div class="mock-cal-grid" id="calGrid"></div>
+          </div>
+
+          <!-- Event Section -->
+          <div class="mock-section">
+            <div class="mock-section-header">
+              <span class="mock-section-title" id="eventSectionTitle">⏱ Event</span>
+              <button class="mock-section-add-btn" id="eventAddBtn" onclick="openEventModal(null)">+ Add</button>
+            </div>
+            <div class="mock-event-list" id="eventList"></div>
+          </div>
+
+          <!-- To-Do Section -->
+          <div class="mock-section">
+            <div class="mock-section-header">
+              <span class="mock-section-title" id="todoSectionTitle">☑ To-Do <span class="mock-section-count" id="todoCount"></span></span>
+            </div>
+            <div class="mock-todo-input-wrap">
+              <input class="mock-todo-input" id="todoInput"
+                     placeholder="Add new task... (Enter)"
+                     onkeydown="handleTodoInput(event)">
+            </div>
+            <ul class="mock-todo-list" id="todoList"></ul>
+          </div>
+
+        </div><!-- /mock-body -->
+
+        <!-- Modal Overlay -->
+        <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+
+          <!-- Event Add/Edit Modal -->
+          <div class="mock-modal" id="eventModal">
+            <div class="mock-modal-header">
+              <h3 class="mock-modal-title" id="eventModalTitle">What did you do?</h3>
+            </div>
+            <div class="mock-modal-body">
+              <div class="mock-modal-field">
+                <label class="mock-modal-label" id="lblTimeSet">Time</label>
+                <div class="mock-modal-time-row">
+                  <input class="mock-modal-time-input" id="evStart" placeholder="09:00">
+                  <input class="mock-modal-time-input" id="evEnd"   placeholder="10:00">
+                </div>
+              </div>
+              <div class="mock-modal-field">
+                <label class="mock-modal-label" id="lblContent">Content</label>
+                <textarea class="mock-modal-textarea" id="evDesc" rows="3"
+                          placeholder="Enter details (optional)."></textarea>
+              </div>
+              <div class="mock-modal-buttons">
+                <button class="mock-btn mock-btn-delete" id="evDeleteBtn"
+                        onclick="deleteEvent()" style="display:none" id="evDeleteBtnEl">Delete</button>
+                <button class="mock-btn mock-btn-cancel" id="evCancelBtn" onclick="closeModal()">Cancel</button>
+                <button class="mock-btn mock-btn-save"   id="evSaveBtn"   onclick="saveEvent()">Save</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirm Popup -->
+          <div class="mock-confirm-modal" id="confirmModal">
+            <h3 class="mock-confirm-title" id="confirmTitle">Notice</h3>
+            <p class="mock-confirm-text" id="confirmText"></p>
+            <div class="mock-modal-buttons">
+              <button class="mock-btn mock-btn-cancel" id="confirmCancelBtn" onclick="closeModal()">Cancel</button>
+              <button class="mock-btn mock-btn-save"   id="confirmOkBtn">OK</button>
+            </div>
+          </div>
+
+        </div><!-- /modal-overlay -->
+      </div><!-- /sidebar-mockup -->
+    </div>
+
+    <!-- ══ Right: Control Panel ═════════════════════════════════ -->
+    <div class="control-panel">
+
+      <!-- Interactive Tester -->
+      <div class="control-card">
+        <h3>인터랙티브 테스터</h3>
+        <div class="info-alert">
+          왼쪽 시뮬레이터의 이벤트 항목을 클릭하거나, 아래 버튼으로 각 팝업 동작을 확인하세요.
+          상단 언어 토글로 <strong>EN / KO</strong> 문구를 전환할 수 있습니다.
+        </div>
+        <div class="interactive-buttons">
+          <button class="btn-trigger" onclick="openEventModal(null)">
+            <span>이벤트 추가 팝업 <small style="color:#94a3b8">(신규 — 삭제 버튼 없음)</small></span>
+          </button>
+          <button class="btn-trigger" onclick="openEventModal({id:1,start:'09:00',end:'10:30',desc:'코드 리뷰 및 PR 검토'})">
+            <span>이벤트 수정 팝업 <small style="color:#94a3b8">(기존 항목 — 삭제 버튼 있음)</small></span>
+          </button>
+          <button class="btn-trigger" onclick="showConfirm(strings.confirmDeleteTask.replace('%s','독서 1시간 하기'), ()=>{})">
+            <span>할 일 삭제 확인 팝업</span>
+          </button>
+          <button class="btn-trigger" onclick="focusTodoInput()">
+            <span>할 일 인라인 입력 포커스 <small style="color:#94a3b8">(Enter로 추가)</small></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- i18n String Table -->
+      <div class="control-card">
+        <h3>다국어 문구 정의 (EN / KO)</h3>
+        <table class="i18n-table">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th><span class="badge-en">EN</span></th>
+              <th><span class="badge-ko">KO</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>sectionEvent</td>     <td>⏱ Event</td>         <td>⏱ 이벤트</td></tr>
+            <tr><td>sectionTodo</td>      <td>☑ To-Do</td>         <td>☑ 할 일</td></tr>
+            <tr><td>btnAdd</td>           <td>+ Add</td>           <td>+ 추가</td></tr>
+            <tr><td>btnToday</td>         <td>Today</td>           <td>오늘</td></tr>
+            <tr><td>todoPlaceholder</td>  <td>Add new task... (Enter)</td><td>새로운 할 일 추가... (Enter)</td></tr>
+            <tr><td>modalAddTitle</td>    <td>What did you do?</td><td>무엇을 했나요?</td></tr>
+            <tr><td>modalEditTitle</td>   <td>Edit Event</td>      <td>이벤트 수정</td></tr>
+            <tr><td>lblTimeSet</td>       <td>Time</td>            <td>시간 설정</td></tr>
+            <tr><td>lblContent</td>       <td>Content</td>         <td>내용</td></tr>
+            <tr><td>btnSave</td>          <td>Save</td>            <td>저장</td></tr>
+            <tr><td>btnCancel</td>        <td>Cancel</td>          <td>취소</td></tr>
+            <tr><td>btnDelete</td>        <td>Delete</td>          <td>삭제</td></tr>
+            <tr><td>confirmTitle</td>     <td>Notice</td>          <td>알림</td></tr>
+            <tr><td>confirmDeleteTask</td><td>Delete '%s'?</td>    <td>'%s' 할 일을 삭제하시겠습니까?</td></tr>
+            <tr><td>confirmDeleteEvent</td><td>Delete this event?</td><td>이 이벤트를 삭제하시겠습니까?</td></tr>
+            <tr><td>confirmOk</td>        <td>OK</td>              <td>확인</td></tr>
+            <tr><td>emptyEvent</td>       <td>No events recorded.</td><td>기록이 없습니다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Button Spec -->
+      <div class="control-card">
+        <h3>액션 버튼 3종 스펙</h3>
+        <div class="btn-spec-row">
+          <span class="btn-spec-label">저장/확인</span>
+          <button class="btn-spec-demo mock-btn mock-btn-save">Save</button>
+          <span class="btn-spec-hex">bg #e2e8f0 · border #64748b · text #1e293b</span>
+        </div>
+        <div class="btn-spec-row">
+          <span class="btn-spec-label">취소</span>
+          <button class="btn-spec-demo mock-btn mock-btn-cancel">Cancel</button>
+          <span class="btn-spec-hex">bg transparent · border #cbd5e1 · text #475569</span>
+        </div>
+        <div class="btn-spec-row">
+          <span class="btn-spec-label">삭제</span>
+          <button class="btn-spec-demo mock-btn mock-btn-delete">Delete</button>
+          <span class="btn-spec-hex">bg transparent · border #fca5a5 · text #991b1b</span>
+        </div>
+        <p style="font-size:11px;color:#94a3b8;margin-top:12px;">
+          ⚠ Obsidian 기본 <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">.mod-cta</code> 사용 금지 — 저채도 계열로 통일
+        </p>
+      </div>
+
+      <!-- Design Principles -->
+      <div class="control-card">
+        <h3>핵심 디자인 원칙</h3>
+        <div class="principle-list">
+          <div class="principle-item">
+            <span class="principle-num">1</span>
+            <span><strong>파스텔톤 컬러</strong> — 저채도 소프트 파스텔로 눈의 피로도를 줄입니다.</span>
+          </div>
+          <div class="principle-item">
+            <span class="principle-num">2</span>
+            <span><strong>저채도 버튼</strong> — 저장/취소/삭제 모두 무채색 계열. .mod-cta 사용 금지.</span>
+          </div>
+          <div class="principle-item">
+            <span class="principle-num">3</span>
+            <span><strong>미니멀 ✕ 삭제 버튼</strong> — 평소 투명, hover 시만 빨간 텍스트. 배경색 변화 없음.</span>
+          </div>
+          <div class="principle-item">
+            <span class="principle-num">4</span>
+            <span><strong>팝업은 시스템 테마를 따름</strong> <span class="changed-badge">변경</span> — 라이트/다크 테마에 따라 자동 전환 (CSS <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">Canvas/CanvasText</code>).</span>
+          </div>
+          <div class="principle-item">
+            <span class="principle-num">5</span>
+            <span><strong>Obsidian CSS 변수 우선</strong> — <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">--text-normal</code> 등으로 테마 호환성 유지.</span>
+          </div>
+          <div class="principle-item">
+            <span class="principle-num">6</span>
+            <span><strong>다국어 지원 (EN / KO)</strong> <span class="changed-badge">추가</span> — 기본값 English. 플러그인 설정에서 전환. 파서는 양 언어 마커를 항상 동시 인식.</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /control-panel -->
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Daily Work Log — UI Design Mockup · Pair-programmed with AI</p>
+  </footer>
+
+  <!-- ══ JavaScript ══════════════════════════════════════════════ -->
+  <script>
+    /* ── i18n Strings ─────────────────────────────── */
+    const STRINGS = {
+      en: {
+        sectionEvent:       '⏱ Event',
+        sectionTodo:        '☑ To-Do',
+        btnAdd:             '+ Add',
+        btnToday:           'Today',
+        todoPlaceholder:    'Add new task... (Enter)',
+        modalAddTitle:      'What did you do?',
+        modalEditTitle:     'Edit Event',
+        lblTimeSet:         'Time',
+        lblContent:         'Content',
+        descPlaceholder:    'Enter details (optional).',
+        btnSave:            'Save',
+        btnCancel:          'Cancel',
+        btnDelete:          'Delete',
+        confirmTitle:       'Notice',
+        confirmDeleteTask:  "Delete '%s'?",
+        confirmDeleteEvent: 'Delete this event?',
+        confirmOk:          'OK',
+        emptyEvent:         'No events recorded.',
+        headerToday:        'Today',
+      },
+      ko: {
+        sectionEvent:       '⏱ 이벤트',
+        sectionTodo:        '☑ 할 일',
+        btnAdd:             '+ 추가',
+        btnToday:           '오늘',
+        todoPlaceholder:    '새로운 할 일 추가... (Enter)',
+        modalAddTitle:      '무엇을 했나요?',
+        modalEditTitle:     '이벤트 수정',
+        lblTimeSet:         '시간 설정',
+        lblContent:         '내용',
+        descPlaceholder:    '상세 내용을 입력해 주세요.',
+        btnSave:            '저장',
+        btnCancel:          '취소',
+        btnDelete:          '삭제',
+        confirmTitle:       '알림',
+        confirmDeleteTask:  "'%s' 할 일을 삭제하시겠습니까?",
+        confirmDeleteEvent: '이 이벤트를 삭제하시겠습니까?',
+        confirmOk:          '확인',
+        emptyEvent:         '기록이 없습니다.',
+        headerToday:        '오늘',
+      }
+    };
+
+    let currentLang = 'en';
+    let strings = STRINGS.en;
+
+    function setLang(lang) {
+      currentLang = lang;
+      strings = STRINGS[lang];
+      document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+      document.getElementById('btnKo').classList.toggle('active', lang === 'ko');
+      applyStrings();
+      renderEvents();
+      renderTodos();
+    }
+
+    function applyStrings() {
+      document.getElementById('eventSectionTitle').textContent = strings.sectionEvent;
+      document.getElementById('todoSectionTitle').innerHTML =
+        strings.sectionTodo + ' <span class="mock-section-count" id="todoCount"></span>';
+      document.getElementById('eventAddBtn').textContent = strings.btnAdd;
+      document.getElementById('calTodayBtn').textContent = strings.btnToday;
+      document.getElementById('hdrTodayBtn').textContent = strings.headerToday;
+      document.getElementById('todoInput').placeholder = strings.todoPlaceholder;
+      document.getElementById('evCancelBtn').textContent = strings.btnCancel;
+      document.getElementById('evSaveBtn').textContent   = strings.btnSave;
+      document.getElementById('evDeleteBtn').textContent = strings.btnDelete;
+      document.getElementById('confirmCancelBtn').textContent = strings.btnCancel;
+      document.getElementById('confirmOkBtn').textContent     = strings.confirmOk;
+      renderTodos(); // update count
+    }
+
+    /* ── Data ─────────────────────────────────────── */
+    const events = [
+      { id:1, start:'09:00', end:'10:30', desc:'코드 리뷰 및 PR 검토' },
+      { id:2, start:'13:00', end:'14:00', desc:'팀 스탠드업 미팅' },
+    ];
+    const todos = [
+      { id:1, text:'플러그인 사이드바 인라인 입력 구현', done:true  },
+      { id:2, text:'design.md 목업 작성',               done:true  },
+      { id:3, text:'이벤트 추가/수정 모달 구현',          done:false },
+      { id:4, text:'AGENTS.md §5 UI 참조 추가',         done:false },
+    ];
+    let nextId = 20;
+    let editingEvId = null;
+    let pendingConfirmFn = null;
+
+    /* ── Calendar ─────────────────────────────────── */
+    function renderCalendar() {
+      const weekdays = {
+        en: ['Su','Mo','Tu','We','Th','Fr','Sa'],
+        ko: ['일','월','화','수','목','금','토'],
+      };
+      const wdEl = document.getElementById('calWeekdays');
+      wdEl.innerHTML = weekdays[currentLang].map(d =>
+        `<div class="mock-cal-weekday">${d}</div>`).join('');
+
+      const grid = document.getElementById('calGrid');
+      const firstDay = new Date(2026,6,1).getDay();
+      const notedDays = new Set([3,7,10,11,14]);
+      grid.innerHTML = '';
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement('div');
+        el.className = 'mock-cal-cell empty';
+        grid.appendChild(el);
+      }
+      for (let d = 1; d <= 31; d++) {
+        const el = document.createElement('div');
+        let cls = 'mock-cal-cell';
+        if (d === 14) cls += ' today selected';
+        if (notedDays.has(d)) cls += ' has-note';
+        el.className = cls;
+        el.textContent = d;
+        grid.appendChild(el);
+      }
+    }
+
+    /* ── Events ───────────────────────────────────── */
+    function renderEvents() {
+      const list = document.getElementById('eventList');
+      list.innerHTML = '';
+      if (!events.length) {
+        list.innerHTML = `<div style="font-size:11px;color:#cbd5e1;padding:4px 0 8px">${strings.emptyEvent}</div>`;
+        return;
+      }
+      [...events].sort((a,b)=>a.start.localeCompare(b.start)).forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'mock-event-item';
+        el.innerHTML = `<span class="mock-event-time">${item.start} – ${item.end}</span>
+                        <span class="mock-event-desc">${item.desc||'—'}</span>`;
+        el.onclick = () => openEventModal(item);
+        list.appendChild(el);
+      });
+    }
+
+    /* ── To-Do ────────────────────────────────────── */
+    function renderTodos() {
+      const list = document.getElementById('todoList');
+      list.innerHTML = '';
+      const countEl = document.getElementById('todoCount');
+      if (countEl) countEl.textContent = `${todos.filter(t=>!t.done).length}/${todos.length}`;
+      todos.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'mock-todo-item';
+        li.innerHTML = `
+          <input type="checkbox" class="mock-todo-checkbox" ${item.done?'checked':''}
+                 onchange="toggleTodo(${item.id},this.checked)">
+          <span class="mock-todo-text ${item.done?'done':''}">${item.text}</span>
+          <button class="mock-todo-delete-btn"
+                  onclick="confirmDeleteTodo(${item.id},'${item.text.replace(/'/g,"\\'")}')">✕</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    function handleTodoInput(e) {
+      if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        if (!val) return;
+        todos.push({ id: nextId++, text: val, done: false });
+        e.target.value = '';
+        renderTodos();
+      } else if (e.key === 'Escape') {
+        e.target.value = '';
+        e.target.blur();
+      }
+    }
+
+    function toggleTodo(id, checked) {
+      const item = todos.find(t=>t.id===id);
+      if (item) { item.done = checked; renderTodos(); }
+    }
+
+    function confirmDeleteTodo(id, text) {
+      showConfirm(strings.confirmDeleteTask.replace('%s', text), () => {
+        const idx = todos.findIndex(t=>t.id===id);
+        if (idx !== -1) { todos.splice(idx,1); renderTodos(); }
+      });
+    }
+
+    function focusTodoInput() {
+      document.getElementById('todoInput').focus();
+    }
+
+    /* ── Event Modal ──────────────────────────────── */
+    function openEventModal(item) {
+      editingEvId = item ? item.id : null;
+      document.getElementById('eventModalTitle').textContent =
+        item ? strings.modalEditTitle : strings.modalAddTitle;
+      document.getElementById('lblTimeSet').textContent = strings.lblTimeSet;
+      document.getElementById('lblContent').textContent = strings.lblContent;
+      document.getElementById('evStart').value = item ? item.start : '';
+      document.getElementById('evEnd').value   = item ? item.end   : '';
+      document.getElementById('evDesc').value  = item ? item.desc  : '';
+      document.getElementById('evDesc').placeholder = strings.descPlaceholder;
+      document.getElementById('evDeleteBtn').style.display = item ? 'block' : 'none';
+      document.getElementById('evDeleteBtn').textContent = strings.btnDelete;
+      document.getElementById('evCancelBtn').textContent = strings.btnCancel;
+      document.getElementById('evSaveBtn').textContent   = strings.btnSave;
+      document.getElementById('confirmModal').classList.remove('visible');
+      showModal('eventModal');
+    }
+
+    function saveEvent() {
+      const start = document.getElementById('evStart').value.trim();
+      const end   = document.getElementById('evEnd').value.trim();
+      const desc  = document.getElementById('evDesc').value.trim();
+      if (!/^\d{1,2}:\d{2}$/.test(start) || !/^\d{1,2}:\d{2}$/.test(end)) {
+        alert('시간 형식을 확인하세요 (예: 09:00)');
+        return;
+      }
+      if (editingEvId !== null) {
+        const item = events.find(t=>t.id===editingEvId);
+        if (item) { item.start=start; item.end=end; item.desc=desc; }
+      } else {
+        events.push({ id: nextId++, start, end, desc });
+      }
+      closeModal();
+      renderEvents();
+    }
+
+    function deleteEvent() {
+      showConfirm(strings.confirmDeleteEvent, () => {
+        const idx = events.findIndex(t=>t.id===editingEvId);
+        if (idx !== -1) { events.splice(idx,1); renderEvents(); }
+      });
+    }
+
+    /* ── Confirm Modal ────────────────────────────── */
+    function showConfirm(msg, onOk) {
+      pendingConfirmFn = onOk;
+      document.getElementById('confirmTitle').textContent = strings.confirmTitle;
+      document.getElementById('confirmText').textContent  = msg;
+      document.getElementById('confirmCancelBtn').textContent = strings.btnCancel;
+      document.getElementById('confirmOkBtn').textContent     = strings.confirmOk;
+      document.getElementById('confirmOkBtn').onclick = () => {
+        closeModal();
+        if (pendingConfirmFn) { pendingConfirmFn(); pendingConfirmFn = null; }
+      };
+      document.getElementById('eventModal').classList.remove('visible');
+      showModal('confirmModal');
+    }
+
+    /* ── Modal Helpers ────────────────────────────── */
+    function showModal(id) {
+      document.getElementById('modalOverlay').classList.add('open');
+      document.getElementById(id).classList.add('visible');
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      ['eventModal','confirmModal'].forEach(id =>
+        document.getElementById(id).classList.remove('visible'));
+    }
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    /* ── Init ─────────────────────────────────────── */
+    renderCalendar();
+    renderEvents();
+    renderTodos();
+    applyStrings();
+  </script>
+</body>
+</html>

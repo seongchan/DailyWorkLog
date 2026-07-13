@@ -1,0 +1,523 @@
+/*
+ * Sidebar color tokens — manually switchable via plugin settings
+ * ("라이트"/"다크"), independent of Obsidian's own active theme.
+ * "light" values are taken directly from docs/sidebar-mockup.html.
+ * "dark" is a same-family (slate) companion palette, since no dark mockup
+ * was provided. Modals and the (future) Dashboard view do NOT use these —
+ * modals always follow the SYSTEM theme (Canvas/CanvasText, design.md §3),
+ * and the Dashboard just follows Obsidian's own theme variables.
+ */
+.dwl-theme-light {
+	--dwl-bg: #ffffff;
+	--dwl-bg-header: #fafafa;
+	--dwl-bg-secondary: #f8fafc;
+	--dwl-bg-hover: #f1f5f9;
+	--dwl-bg-active: #e2e8f0;
+	--dwl-border: #e2e8f0;
+	--dwl-border-light: #eaeaea;
+	--dwl-text: #1e293b;
+	--dwl-text-muted: #64748b;
+	--dwl-text-faint: #94a3b8;
+	--dwl-accent: #3b82f6;
+	--dwl-accent-text: #ffffff;
+}
+
+.dwl-theme-dark {
+	--dwl-bg: #1e293b;
+	--dwl-bg-header: #0f172a;
+	--dwl-bg-secondary: #0f172a;
+	--dwl-bg-hover: #334155;
+	--dwl-bg-active: #475569;
+	--dwl-border: #334155;
+	--dwl-border-light: #1e293b;
+	--dwl-text: #e2e8f0;
+	--dwl-text-muted: #94a3b8;
+	--dwl-text-faint: #64748b;
+	--dwl-accent: #60a5fa;
+	--dwl-accent-text: #ffffff;
+}
+
+.dwl-view {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 0.5rem;
+	background: var(--dwl-bg);
+	color: var(--dwl-text);
+}
+
+.dwl-empty-state {
+	color: var(--dwl-text-muted);
+	font-size: var(--font-ui-small);
+	padding: 0.5rem 0;
+}
+
+/* Shared section (Event / To-Do) header — design.md §6 */
+
+.dwl-section {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.dwl-section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.dwl-section-title {
+	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	color: var(--dwl-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	display: flex;
+	align-items: center;
+}
+
+.dwl-section-count {
+	font-size: var(--font-ui-smaller);
+	color: var(--dwl-text-faint);
+	font-weight: 400;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+.dwl-section-add-btn {
+	background: transparent;
+	border: 1px solid var(--dwl-border);
+	border-radius: var(--radius-s);
+	padding: 0.1rem 0.5rem;
+	font-size: var(--font-ui-smaller);
+	color: var(--dwl-text-muted);
+	cursor: pointer;
+}
+
+.dwl-section-add-btn:hover {
+	background: var(--dwl-bg-hover);
+}
+
+/* Calendar */
+
+.dwl-calendar {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.dwl-calendar-nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.25rem;
+}
+
+.dwl-calendar-nav-btn,
+.dwl-calendar-today-btn {
+	background: var(--dwl-bg-hover);
+	color: var(--dwl-text);
+	border: 1px solid var(--dwl-border);
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	padding: 0.15rem 0.6rem;
+	font-size: var(--font-ui-small);
+}
+
+.dwl-calendar-nav-btn:hover,
+.dwl-calendar-today-btn:hover {
+	background: var(--dwl-bg-active);
+}
+
+.dwl-calendar-today-btn {
+	color: var(--dwl-accent);
+	font-weight: 600;
+}
+
+.dwl-calendar-label {
+	text-align: center;
+	font-weight: 600;
+	color: var(--dwl-text);
+}
+
+.dwl-calendar-weekdays,
+.dwl-calendar-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+
+.dwl-calendar-weekday {
+	text-align: center;
+	font-size: var(--font-ui-smaller);
+	color: var(--dwl-text-faint);
+}
+
+.dwl-calendar-cell {
+	position: relative;
+	text-align: center;
+	padding: 0.35rem 0;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	color: var(--dwl-text);
+}
+
+.dwl-calendar-cell:hover {
+	background: var(--dwl-bg-hover);
+}
+
+.dwl-calendar-cell-empty {
+	cursor: default;
+}
+
+.dwl-calendar-cell-empty:hover {
+	background: transparent;
+}
+
+.dwl-calendar-cell-today {
+	font-weight: 700;
+	color: var(--dwl-accent);
+}
+
+.dwl-calendar-cell-selected {
+	background: var(--dwl-accent);
+	color: var(--dwl-accent-text);
+}
+
+.dwl-calendar-cell-has-note::after {
+	content: "";
+	position: absolute;
+	bottom: 2px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: var(--dwl-accent);
+}
+
+.dwl-calendar-cell-selected.dwl-calendar-cell-has-note::after {
+	background: var(--dwl-accent-text);
+}
+
+/* Event (Timeline) section */
+
+.dwl-timeline {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	border-left: 2px solid var(--dwl-border);
+	padding-left: 0.75rem;
+}
+
+.dwl-timeline-item {
+	min-height: calc(var(--dwl-duration-minutes, 30) * 0.6px + 1.5rem);
+	background: var(--dwl-bg-secondary);
+	border-radius: var(--radius-m);
+	padding: 0.4rem 0.6rem;
+	cursor: pointer;
+	transition: background 0.1s;
+}
+
+.dwl-timeline-item:hover {
+	background: var(--dwl-bg-hover);
+}
+
+.dwl-timeline-time {
+	font-size: var(--font-ui-smaller);
+	color: var(--dwl-text-faint);
+}
+
+.dwl-timeline-desc {
+	color: var(--dwl-text);
+}
+
+/* To-Do section */
+
+.dwl-todo-input-wrap {
+	padding: 0;
+}
+
+.dwl-todo-input {
+	width: 100%;
+	font-size: var(--font-ui-small);
+	padding: 0.3rem 0.5rem;
+	border: 1px solid var(--dwl-border-light);
+	border-radius: var(--radius-s);
+	background: var(--dwl-bg);
+	color: var(--dwl-text);
+	outline: none;
+}
+
+.dwl-todo-input:focus {
+	border-color: var(--dwl-accent);
+}
+
+.dwl-todo-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.dwl-todo-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.15rem 0.2rem;
+	border-radius: var(--radius-s);
+}
+
+.dwl-todo-item:hover {
+	background: var(--dwl-bg-secondary);
+}
+
+.dwl-todo-checkbox {
+	cursor: pointer;
+}
+
+.dwl-todo-text {
+	flex: 1;
+	color: var(--dwl-text);
+}
+
+.dwl-todo-text-checked {
+	color: var(--dwl-text-faint);
+	text-decoration: line-through;
+}
+
+/* Minimal ✕ delete button — design.md §4.1: invisible until item hover,
+   background never changes, only the text color reacts. */
+.dwl-todo-delete-btn {
+	border: none;
+	background: transparent;
+	color: var(--dwl-text-faint);
+	font-size: var(--font-ui-smaller);
+	padding: 0.1rem 0.3rem;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.15s, color 0.15s;
+}
+
+.dwl-todo-item:hover .dwl-todo-delete-btn {
+	opacity: 1;
+}
+
+.dwl-todo-delete-btn:hover {
+	color: #ef4444;
+}
+
+/* Modals (ConfirmCreateNoteModal, ConfirmDeleteModal, EventEntryModal) —
+   design.md §3: follow the SYSTEM theme (Canvas/CanvasText), not the
+   sidebar's own light/dark setting and not Obsidian's in-app theme either,
+   so the popup always stays readable regardless of how the surrounding
+   window is themed. This is intentionally NOT affected by --dwl-* tokens. */
+
+.dwl-confirm-modal,
+.dwl-event-modal {
+	color: CanvasText;
+}
+
+.dwl-modal-title {
+	margin: 0 0 0.6rem;
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: CanvasText;
+}
+
+.dwl-modal-text {
+	margin: 0 0 0.75rem;
+	font-size: 0.8rem;
+	color: CanvasText;
+	opacity: 0.8;
+	line-height: 1.5;
+}
+
+.dwl-modal-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	margin-bottom: 0.6rem;
+}
+
+.dwl-modal-label {
+	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	color: CanvasText;
+	opacity: 0.7;
+}
+
+.dwl-modal-time-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.4rem;
+}
+
+.dwl-modal-time-input,
+.dwl-modal-textarea {
+	width: 100%;
+	min-width: 0;
+	padding: 0.3rem 0.5rem;
+	border: 1px solid rgba(0, 0, 0, 0.18);
+	border-radius: var(--radius-s);
+	font-size: 0.8rem;
+	font-family: inherit;
+	color: CanvasText;
+	background: Canvas;
+	outline: none;
+}
+
+.dwl-modal-time-input:focus,
+.dwl-modal-textarea:focus {
+	border-color: #a0aec0;
+}
+
+.dwl-modal-textarea {
+	resize: vertical;
+	min-height: 48px;
+	max-height: 90px;
+}
+
+.dwl-modal-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.4rem;
+	margin-top: 0.5rem;
+}
+
+/* Action button 3-spec — design.md §2.2. Intentionally NOT using Obsidian's
+   `.mod-cta` (accent blue) anywhere; every button here is low-saturation.
+   These are also shared by modals, so they intentionally use their own
+   fixed hex values rather than --dwl-* tokens (same reasoning as above). */
+
+.dwl-modal-btn-save,
+.dwl-modal-btn-cancel,
+.dwl-modal-btn-delete {
+	padding: 0.3rem 0.7rem;
+	border-radius: var(--radius-s);
+	font-size: var(--font-ui-smaller);
+	font-weight: 500;
+	cursor: pointer;
+	font-family: inherit;
+	transition: background 0.15s;
+}
+
+.dwl-modal-btn-save {
+	background: #e2e8f0;
+	color: #1e293b;
+	border: 1px solid #64748b;
+}
+
+.dwl-modal-btn-save:hover {
+	background: #cbd5e1;
+}
+
+.dwl-modal-btn-cancel {
+	background: transparent;
+	color: #475569;
+	border: 1px solid #cbd5e1;
+}
+
+.dwl-modal-btn-cancel:hover {
+	background: #f1f5f9;
+}
+
+.dwl-modal-btn-delete {
+	background: transparent;
+	color: #991b1b;
+	border: 1px solid #fca5a5;
+	margin-right: auto;
+}
+
+.dwl-modal-btn-delete:hover {
+	background: #fee2e2;
+}
+
+/* Dashboard — deliberately uses Obsidian's OWN theme variables directly
+   (no --dwl-* tokens, no light/dark setting). It's a main-workspace tab,
+   not the sidebar, so it should look like a native part of the vault. */
+
+.dwl-dashboard-view {
+	padding: 1.5rem;
+	max-width: 720px;
+	margin: 0 auto;
+	color: var(--text-normal);
+}
+
+.dwl-dashboard-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.25rem;
+}
+
+.dwl-dashboard-title {
+	margin: 0;
+	color: var(--text-normal);
+}
+
+.dwl-dashboard-refresh-btn {
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	padding: 0.3rem 0.8rem;
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+}
+
+.dwl-dashboard-refresh-btn:hover {
+	background: var(--background-modifier-hover);
+}
+
+.dwl-dashboard-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
+}
+
+.dwl-dashboard-stat-card {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	padding: 0.75rem 1rem;
+}
+
+.dwl-dashboard-stat-label {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 0.3rem;
+}
+
+.dwl-dashboard-stat-value {
+	font-size: 1.15rem;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.dwl-dashboard-subtitle {
+	color: var(--text-normal);
+	margin: 0 0 0.5rem;
+}
+
+.dwl-dashboard-note-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+.dwl-dashboard-note-item {
+	padding: 0.35rem 0.6rem;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	color: var(--text-normal);
+}
+
+.dwl-dashboard-note-item:hover {
+	background: var(--background-modifier-hover);
+}
