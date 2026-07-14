@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
@@ -50,10 +52,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # 모든 태그 강제 가져오기
+          git fetch --tags --force
           tag="${GITHUB_REF_NAME}"
+          
+          # 이전 태그 식별 (없을 경우 첫 태그로 간주)
+          prev_tag=$(git describe --tags --abbrev=0 "$tag"^ 2>/dev/null || echo "")
+          
+          if [ -n "$prev_tag" ]; then
+            echo "Generating changelog between $prev_tag and $tag"
+            git log "$prev_tag".."$tag" --oneline --pretty=format:"* %s (%h)" > changelog.txt
+          else
+            echo "No previous tag found. Generating changelog for all commits up to $tag"
+            git log "$tag" --oneline --pretty=format:"* %s (%h)" > changelog.txt
+          fi
+          
+          # 생성된 changelog.txt로 릴리즈 노트 등록
           gh release create "$tag" \
             --title "$tag" \
-            --generate-notes \
+            --notes-file changelog.txt \
             dist/main.js \
             dist/manifest.json \
             dist/styles.css
+
