@@ -1,6 +1,6 @@
 {
 	"name": "daily-work-log",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"description": "Visualize daily time tracking and To-Do lists directly from daily notes with minimal metadata.",
 	"main": "dist/main.js",
 	"scripts": {

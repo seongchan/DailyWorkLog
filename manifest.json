@@ -1,7 +1,7 @@
 {
 	"id": "daily-work-log",
 	"name": "Daily Work Log",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"minAppVersion": "1.11.0",
 	"description": "Visualize daily time tracking and To-Do lists directly from daily notes with minimal metadata.",
 	"author": "checks",
