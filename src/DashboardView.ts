@@ -44,8 +44,8 @@ export class DashboardView extends ItemView {
 		await this.refresh();
 	}
 
-	async onClose(): Promise<void> {
-		return;
+	onClose(): Promise<void> {
+		return Promise.resolve();
 	}
 
 	async refresh(): Promise<void> {
