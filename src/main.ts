@@ -15,6 +15,10 @@ export default class DailyWorkLogPlugin extends Plugin {
 		this.registerView(VIEW_TYPE_DAILY_WORK_LOG, (leaf) => new DailyWorkLogView(leaf, this));
 		this.registerView(VIEW_TYPE_DASHBOARD, (leaf) => new DashboardView(leaf, this));
 
+		this.addRibbonIcon("list-checks", "사이드바 열기", () => {
+			void this.activateView();
+		});
+
 		this.addRibbonIcon("calendar-clock", "대시보드 열기", () => {
 			void this.activateDashboard();
 		});
