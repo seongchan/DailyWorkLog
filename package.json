@@ -6,7 +6,8 @@
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"test": "vitest run"
+		"test": "vitest run",
+		"version": "node version-bump.mjs && git add manifest.json"
 	},
 	"license": "MIT",
 	"devDependencies": {
