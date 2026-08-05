@@ -59,12 +59,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 기존 태그 전부 가져오기 (이전 태그 탐색용)
-          git fetch --tags --force
-
-          # 태그명은 더 이상 git ref가 아니라 manifest.json에 커밋되어 있는
-          # 버전값에서 직접 읽는다 (로컬에서 `npm version --no-git-tag-version`
-          # 으로 갱신되어 이미 main에 push되어 있는 상태 — 위 on: 주석 참고).
+          # 태그명은 git ref가 아니라 manifest.json에 커밋되어 있는 버전값에서
+          # 직접 읽는다 (로컬에서 `npm version --no-git-tag-version`으로 갱신되어
+          # 이미 main에 push되어 있는 상태 — 위 on: 주석 참고).
           tag=$(node -p "require('./manifest.json').version")
           echo "Releasing version $tag"
 
@@ -73,21 +70,15 @@ jobs:
             exit 1
           fi
 
-          # 이전 태그 식별 (현재 커밋 기준으로 가장 최근 태그 — 이 시점엔 $tag
-          # 태그가 아직 존재하지 않으므로 단순히 HEAD 기준으로 찾으면 된다)
-          prev_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          # 릴리즈 노트는 git log가 아니라 README.md의 "## Changelog" 최신 항목을
+          # 그대로 가져다 쓴다 (raw 커밋 로그 대신 사람이 정리한 문구 사용).
+          # README.md의 최신 항목 버전이 $tag와 다르면 실패한다 — 릴리즈 전
+          # README 갱신을 깜빡하는 걸 막기 위한 안전장치.
+          node .github/scripts/extract-changelog.mjs "$tag" README.md changelog.txt
 
-          if [ -n "$prev_tag" ]; then
-            echo "Generating changelog between $prev_tag and HEAD"
-            git log "$prev_tag"..HEAD --oneline --pretty=format:"* %s (%h)" > changelog.txt
-          else
-            echo "No previous tag found. Generating changelog for all commits up to HEAD"
-            git log --oneline --pretty=format:"* %s (%h)" > changelog.txt
-          fi
-
-          # 생성된 changelog.txt로 릴리즈 노트 등록. 태그가 아직 없으므로
-          # --target으로 지금 이 커밋을 명시해야 gh가 그 지점에 태그를 새로
-          # 만든다 — 이렇게 API로 생성된 태그라야 GitHub 서명(Verified)이 붙는다.
+          # 태그가 아직 없으므로 --target으로 지금 이 커밋을 명시해야 gh가 그
+          # 지점에 태그를 새로 만든다 — 이렇게 API로 생성된 태그라야 GitHub
+          # 서명(Verified)이 붙는다.
           gh release create "$tag" \
             --title "$tag" \
             --notes-file changelog.txt \
