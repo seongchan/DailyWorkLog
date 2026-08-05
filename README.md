@@ -104,7 +104,7 @@ npm run build   # type-check (tsc) + production build
 
 ## Changelog
 
-###  — 2026-08-05
+### 0.3.0 (2026-08-05)
 
 - Sidebar rebuilt as a 10-minute grid timeline (drag to select a time range), replacing the old list-and-calendar layout. Calendar date navigation has been removed — use Obsidian's own file explorer or quick switcher to jump to another day's note.
 - Added color-coded categories (5 built-in + up to 10 custom), stored as an optional `[Category]` tag in each Event line.
