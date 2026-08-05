@@ -12,3 +12,6 @@ ref_docs/
 .claude/
 .vscode/
 .idea/
+
+# PDF 제외
+*.pdf
