@@ -8,6 +8,8 @@ export interface TimelineItem {
 	line: number;
 	start: string;
 	end: string;
+	/** Category display name, verbatim as stored in the body (AGENTS.md 1.4.1). `undefined` = uncategorized (legacy line, or user never set one). */
+	category?: string;
 	description: string;
 }
 
@@ -39,13 +41,18 @@ export interface BlockLayout {
 	legacy: boolean;
 }
 
-/** Exported so callers (e.g. view.ts) can re-validate a line before mutating it in place. */
-export const TIME_RANGE_REGEX = /^[-*]\s*(\d{1,2}:\d{2})\s*[-~]\s*(\d{1,2}:\d{2})\s*(.*)$/;
+/**
+ * Exported so callers (e.g. view.ts) can re-validate a line before mutating it in place.
+ * Group 3 (category) is optional — AGENTS.md 1.4.1: `- HH:mm - HH:mm [Category] description`.
+ * Lines written before the category feature existed have no `[...]` token at all and still
+ * match, with group 3 `undefined` (see parseTimeline / timelineLineMatches).
+ */
+export const TIME_RANGE_REGEX = /^[-*]\s*(\d{1,2}:\d{2})\s*[-~]\s*(\d{1,2}:\d{2})\s*(?:\[([^\]]*)\]\s*)?(.*)$/;
 /** Exported so callers (e.g. view.ts) can re-validate a line before mutating it in place. */
 export const CHECKBOX_REGEX = /^[-*]\s*\[([ xX])\]\s*(.*)$/;
 /**
  * Strict "HH:mm" validation for a single user-entered time VALUE (hours
- * 00-23, minutes 00-59) — e.g. EventEntryModal's start/end inputs. This is
+ * 00-23, minutes 00-59) — e.g. TimelineModal's start/end inputs. This is
  * deliberately stricter than TIME_RANGE_REGEX above, which only extracts
  * the shape `\d{1,2}:\d{2}` out of an existing line and doesn't range-check
  * it (that regex's job is finding/parsing lines, not validating new input).
@@ -54,13 +61,28 @@ export const TIME_VALUE_REGEX = /^(?:[01]?\d|2[0-3]):[0-5]\d$/;
 const FRONTMATTER_DELIMITER = "---";
 
 /**
- * Reserved marker text per block type and display language. ALL languages
- * are recognized simultaneously when parsing, regardless of the plugin's
- * configured language setting — that setting only controls which label is
- * inserted into newly scaffolded notes (see dailyNote.ts). Changing it must
- * never break parsing of notes already written under a different language.
+ * Reserved marker text per block type and display language. Used both to
+ * scaffold new notes (dailyNote.ts buildSkeletonContent) and, together with
+ * LEGACY_MARKER_LABELS below, to recognize markers when parsing. ALL
+ * languages AND both spellings are recognized simultaneously when parsing,
+ * regardless of the plugin's configured language setting — that setting only
+ * controls which label is inserted into newly scaffolded notes. Changing it
+ * must never break parsing of notes already written under a different
+ * language or spelling.
  */
 export const MARKER_LABELS: Record<BlockType, Record<MarkerLanguage, string>> = {
+	timeline: { en: "Event", ko: "이벤트" },
+	todo: { en: "ToDo", ko: "할일" },
+	journal: { en: "Diary", ko: "다이어리" },
+};
+
+/**
+ * Pre-2026-08 marker spelling (leading underscore, e.g. `_Event`). Dropped as
+ * the scaffolding default because a lone leading `_` renders italic in most
+ * markdown viewers. Recognized here ONLY for parsing, so notes written before
+ * this change keep working — never used to scaffold new notes (AGENTS.md 1.3).
+ */
+const LEGACY_MARKER_LABELS: Record<BlockType, Record<MarkerLanguage, string>> = {
 	timeline: { en: "_Event", ko: "_이벤트" },
 	todo: { en: "_ToDo", ko: "_할일" },
 	journal: { en: "_Diary", ko: "_다이어리" },
@@ -73,7 +95,7 @@ function escapeRegExp(value: string): string {
 const MARKER_PATTERNS: Array<{ type: BlockType; regex: RegExp }> = (
 	Object.keys(MARKER_LABELS) as BlockType[]
 ).flatMap((type) =>
-	Object.values(MARKER_LABELS[type]).map((label) => ({
+	[...Object.values(MARKER_LABELS[type]), ...Object.values(LEGACY_MARKER_LABELS[type])].map((label) => ({
 		type,
 		regex: new RegExp(`^#\\s+${escapeRegExp(label)}$`, "i"),
 	}))
@@ -175,7 +197,8 @@ export function parseTimeline(lines: string[], range: LineRange): TimelineItem[]
 				line,
 				start: match[1],
 				end: match[2],
-				description: match[3].trim(),
+				category: match[3] ? match[3] : undefined,
+				description: match[4].trim(),
 			});
 		}
 	}
@@ -235,11 +258,13 @@ export function todoLineMatches(line: string, item: TodoItem): boolean {
 /** Same staleness guard as `todoLineMatches`, for Timeline/Event items. */
 export function timelineLineMatches(line: string, item: TimelineItem): boolean {
 	const match = TIME_RANGE_REGEX.exec(line);
+	if (match === null) return false;
+	const category = match[3] ? match[3] : undefined;
 	return (
-		match !== null &&
 		match[1] === item.start &&
 		match[2] === item.end &&
-		match[3].trim() === item.description
+		category === item.category &&
+		match[4].trim() === item.description
 	);
 }
 
@@ -303,6 +328,13 @@ const MINUTES_PER_DAY = 24 * 60;
 export function timeToMinutes(hhmm: string): number {
 	const [hours, minutes] = hhmm.split(":").map(Number);
 	return hours * 60 + minutes;
+}
+
+/** Inverse of `timeToMinutes` — formats minutes-since-midnight as zero-padded "HH:mm". Used by the grid's drag-to-select. */
+export function minutesToTime(minutes: number): string {
+	const hours = Math.floor(minutes / 60);
+	const mins = minutes % 60;
+	return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 }
 
 /**

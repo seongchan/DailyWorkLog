@@ -1,12 +1,15 @@
-import { Plugin, TFile } from "obsidian";
+import { getLanguage, Plugin, setTooltip, TFile } from "obsidian";
 import { DailyWorkLogView, VIEW_TYPE_DAILY_WORK_LOG } from "./view";
 import { DashboardView, VIEW_TYPE_DASHBOARD } from "./DashboardView";
+import { t } from "./i18n";
 import { DailyWorkLogSettingTab } from "./SettingTab";
-import { DEFAULT_SETTINGS, type DailyWorkLogSettings } from "./settings";
+import { DEFAULT_SETTINGS, migrateLoadedSettings, type DailyWorkLogSettings, type SidebarTheme } from "./settings";
 
 export default class DailyWorkLogPlugin extends Plugin {
 	settings: DailyWorkLogSettings = DEFAULT_SETTINGS;
 	private lastSelfWrite: { path: string; content: string } | null = null;
+	private sidebarRibbonEl!: HTMLElement;
+	private dashboardRibbonEl!: HTMLElement;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -15,23 +18,27 @@ export default class DailyWorkLogPlugin extends Plugin {
 		this.registerView(VIEW_TYPE_DAILY_WORK_LOG, (leaf) => new DailyWorkLogView(leaf, this));
 		this.registerView(VIEW_TYPE_DASHBOARD, (leaf) => new DashboardView(leaf, this));
 
-		this.addRibbonIcon("list-checks", "사이드바 열기", () => {
-			void this.activateView();
-		});
-
-		this.addRibbonIcon("calendar-clock", "대시보드 열기", () => {
+		this.dashboardRibbonEl = this.addRibbonIcon("gauge", t("ribbonOpenDashboard", this.settings.language), () => {
 			void this.activateDashboard();
 		});
 
+		this.sidebarRibbonEl = this.addRibbonIcon("calendar-clock", t("ribbonOpenSidebar", this.settings.language), () => {
+			void this.activateView();
+		});
+
+		// Command names, unlike the ribbon tooltips above, have no supported
+		// live-update API (no setTooltip equivalent) — they're set once here
+		// at startup language and won't change until Obsidian restarts, even
+		// if the user flips the language setting mid-session.
 		this.addCommand({
 			id: "open-sidebar",
-			name: "사이드바 열기",
+			name: t("commandOpenSidebar", this.settings.language),
 			callback: () => void this.activateView(),
 		});
 
 		this.addCommand({
 			id: "open-dashboard",
-			name: "대시보드 열기",
+			name: t("commandOpenDashboard", this.settings.language),
 			callback: () => void this.activateDashboard(),
 		});
 
@@ -49,8 +56,16 @@ export default class DailyWorkLogPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		const loadedData = (await this.loadData()) as Partial<DailyWorkLogSettings> | null;
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
+		const loadedData = (await this.loadData()) as (Partial<DailyWorkLogSettings> & { theme?: SidebarTheme }) | null;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, migrateLoadedSettings(loadedData));
+
+		// First run only (no saved language yet) — auto-detect from Obsidian's own UI
+		// language, then persist it so this never re-triggers. Purely a nicer default;
+		// the dropdown in SettingTab can always override it afterward (AGENTS.md §2).
+		if (!loadedData || loadedData.language === undefined) {
+			this.settings.language = getLanguage() === "ko" ? "ko" : "en";
+			await this.saveSettings();
+		}
 	}
 
 	async saveSettings(): Promise<void> {
@@ -86,6 +101,9 @@ export default class DailyWorkLogPlugin extends Plugin {
 
 	/** Public so SettingTab can force a re-render (e.g. after a language/theme change). */
 	refreshViews(): void {
+		setTooltip(this.sidebarRibbonEl, t("ribbonOpenSidebar", this.settings.language));
+		setTooltip(this.dashboardRibbonEl, t("ribbonOpenDashboard", this.settings.language));
+
 		for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_DAILY_WORK_LOG)) {
 			if (leaf.view instanceof DailyWorkLogView) {
 				void leaf.view.refresh();

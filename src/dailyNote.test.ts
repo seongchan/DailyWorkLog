@@ -41,11 +41,16 @@ describe("formatDateBasename / formatDateFilename", () => {
 describe("buildSkeletonContent", () => {
 	it("puts exactly one blank line after each marker, including the last one", () => {
 		const lines = buildSkeletonContent("en").split("\n");
-		expect(lines).toEqual(["# _Event", "", "# _ToDo", "", "# _Diary", ""]);
+		expect(lines).toEqual(["# Event", "", "# ToDo", "", "# Diary", ""]);
 	});
 
 	it("uses the Korean labels when language is ko", () => {
 		const lines = buildSkeletonContent("ko").split("\n");
-		expect(lines).toEqual(["# _이벤트", "", "# _할일", "", "# _다이어리", ""]);
+		expect(lines).toEqual(["# 이벤트", "", "# 할일", "", "# 다이어리", ""]);
+	});
+
+	it("never scaffolds the legacy underscore-prefixed spelling (AGENTS.md 1.3)", () => {
+		expect(buildSkeletonContent("en")).not.toContain("_Event");
+		expect(buildSkeletonContent("ko")).not.toContain("_이벤트");
 	});
 });

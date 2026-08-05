@@ -37,13 +37,23 @@
 	--dwl-accent-text: #ffffff;
 }
 
+.dwl-view-container {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
 .dwl-view {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 0.75rem;
 	padding: 0.5rem;
 	background: var(--dwl-bg);
 	color: var(--dwl-text);
+	height: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 
 .dwl-empty-state {
@@ -84,161 +94,218 @@
 	letter-spacing: normal;
 }
 
-.dwl-section-add-btn {
-	background: transparent;
-	border: 1px solid var(--dwl-border);
-	border-radius: var(--radius-s);
-	padding: 0.1rem 0.5rem;
-	font-size: var(--font-ui-smaller);
-	color: var(--dwl-text-muted);
-	cursor: pointer;
-}
+/* View header (date title + "today's note" button) — slightly darker than
+   the grid body background, matching DayTime Tracker's own header treatment
+   (background-color: var(--background-secondary) there). */
 
-.dwl-section-add-btn:hover {
-	background: var(--dwl-bg-hover);
-}
-
-/* Calendar */
-
-.dwl-calendar {
-	display: flex;
-	flex-direction: column;
-	gap: 0.35rem;
-}
-
-.dwl-calendar-nav {
+.dwl-view-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 0.25rem;
+	gap: 0.5rem;
+	padding: 0.5rem 0.6rem;
+	margin: -0.5rem -0.5rem 0;
+	background: var(--dwl-bg-header);
+	border-bottom: 1px solid var(--dwl-border-light);
 }
 
-.dwl-calendar-nav-btn,
-.dwl-calendar-today-btn {
+.dwl-view-date-title {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--dwl-text);
+}
+
+.dwl-header-btn-group {
+	display: flex;
+	gap: 0.4rem;
+}
+
+/* Class repeated to out-specificity the active Obsidian theme's own `button`
+   rule (some themes, especially dark ones, style bare buttons with their own
+   dark/black background — without this, our light pastel intent loses the
+   cascade). Same defensive technique DayTime Tracker's styles.css uses for
+   its header buttons. */
+.dwl-header-btn.dwl-header-btn {
 	background: var(--dwl-bg-hover);
 	color: var(--dwl-text);
 	border: 1px solid var(--dwl-border);
 	border-radius: var(--radius-s);
+	padding: 0.25rem 0.6rem;
+	font-size: var(--font-ui-smaller);
+	font-weight: 500;
 	cursor: pointer;
-	padding: 0.15rem 0.6rem;
+	box-shadow: none;
+}
+
+.dwl-header-btn.dwl-header-btn:hover {
+	background: var(--dwl-bg-active);
+	color: var(--dwl-text);
+}
+
+/* Empty states (no note open / not a daily note) — deliberately NOT themed
+   via --dwl-* tokens like the rest of the sidebar. There's no real content
+   to show yet, so this should just look like a native part of the vault
+   (Obsidian's own theme colors), the same reasoning as the Dashboard. */
+.dwl-empty-state-block {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	flex: 1;
+	padding: 1rem;
+	margin: -0.5rem;
+	background: var(--background-primary);
+	color: var(--text-normal);
+}
+
+.dwl-empty-state-block h3 {
+	margin: 0;
+	color: var(--text-normal);
+}
+
+.dwl-empty-state-block p {
+	margin: 0.4rem 0 0;
+	color: var(--text-muted);
 	font-size: var(--font-ui-small);
 }
 
-.dwl-calendar-nav-btn:hover,
-.dwl-calendar-today-btn:hover {
-	background: var(--dwl-bg-active);
+/* "A couple of blank lines" of breathing room before the action button. */
+.dwl-empty-state-btn.dwl-empty-state-btn {
+	margin-top: 2.5rem;
 }
 
-.dwl-calendar-today-btn {
-	color: var(--dwl-accent);
-	font-weight: 600;
+/* Grid timeline (10-minute cells, drag-to-select) — replaces the old
+   Calendar + list-based Timeline (design.md §5.1, ported from DayTime Tracker). */
+
+.dwl-grid-wrap {
+	flex: 1;
+	overflow-y: auto;
 }
 
-.dwl-calendar-label {
-	text-align: center;
-	font-weight: 600;
-	color: var(--dwl-text);
-}
-
-.dwl-calendar-weekdays,
-.dwl-calendar-grid {
-	display: grid;
-	grid-template-columns: repeat(7, 1fr);
-	gap: 2px;
-}
-
-.dwl-calendar-weekday {
-	text-align: center;
-	font-size: var(--font-ui-smaller);
-	color: var(--dwl-text-faint);
-}
-
-.dwl-calendar-cell {
-	position: relative;
-	text-align: center;
-	padding: 0.35rem 0;
-	border-radius: var(--radius-s);
-	cursor: pointer;
-	color: var(--dwl-text);
-}
-
-.dwl-calendar-cell:hover {
-	background: var(--dwl-bg-hover);
-}
-
-.dwl-calendar-cell-empty {
-	cursor: default;
-}
-
-.dwl-calendar-cell-empty:hover {
-	background: transparent;
-}
-
-.dwl-calendar-cell-today {
-	font-weight: 700;
-	color: var(--dwl-accent);
-}
-
-.dwl-calendar-cell-selected {
-	background: var(--dwl-accent);
-	color: var(--dwl-accent-text);
-}
-
-.dwl-calendar-cell-has-note::after {
-	content: "";
-	position: absolute;
-	bottom: 2px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 4px;
-	height: 4px;
-	border-radius: 50%;
-	background: var(--dwl-accent);
-}
-
-.dwl-calendar-cell-selected.dwl-calendar-cell-has-note::after {
-	background: var(--dwl-accent-text);
-}
-
-/* Event (Timeline) section */
-
-.dwl-timeline {
+.dwl-grid {
 	display: flex;
 	flex-direction: column;
-	gap: 0.4rem;
-	border-left: 2px solid var(--dwl-border);
-	padding-left: 0.75rem;
-}
-
-.dwl-timeline-item {
-	min-height: calc(var(--dwl-duration-minutes, 30) * 0.6px + 1.5rem);
-	background: var(--dwl-bg-secondary);
+	border-top: 1px solid var(--dwl-border);
+	border-left: 1px solid var(--dwl-border);
 	border-radius: var(--radius-m);
-	padding: 0.4rem 0.6rem;
-	cursor: pointer;
-	transition: background 0.1s;
+	overflow: hidden;
 }
 
-.dwl-timeline-item:hover {
-	background: var(--dwl-bg-hover);
+.dwl-grid-row {
+	display: flex;
+	height: 36px;
+	align-items: stretch;
 }
 
-.dwl-timeline-time {
+.dwl-grid-hour-label {
+	width: 44px;
+	min-width: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	padding-right: 8px;
+	gap: 2px;
+	border-bottom: 1px solid var(--dwl-border);
+	background: var(--dwl-bg-header);
+	box-sizing: border-box;
+	user-select: none;
+}
+
+.dwl-grid-hour-num {
 	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	color: var(--dwl-text);
+}
+
+.dwl-grid-hour-ampm {
+	font-size: 9px;
 	color: var(--dwl-text-faint);
 }
 
-.dwl-timeline-desc {
-	color: var(--dwl-text);
+.dwl-grid-cells {
+	flex: 1;
+	display: flex;
+	position: relative;
+	user-select: none;
+}
+
+.dwl-grid-cell {
+	flex: 1;
+	border-right: 1px solid var(--dwl-border-light);
+	border-bottom: 1px solid var(--dwl-border-light);
+	box-sizing: border-box;
+	cursor: crosshair;
+	transition: background-color 0.1s ease;
+}
+
+.dwl-grid-cell:hover {
+	background: var(--dwl-bg-hover);
+}
+
+.dwl-grid-cell.is-selecting {
+	background: var(--dwl-accent);
+	opacity: 0.4;
+}
+
+.dwl-grid-block {
+	position: absolute;
+	height: calc(100% - 6px);
+	top: 3px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.2em;
+	font-size: 11px;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 0 6px;
+	z-index: 10;
+	box-sizing: border-box;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+	cursor: pointer;
+	transition: transform 0.1s ease, filter 0.1s ease;
+	border-left: 2px solid transparent;
+	border-right: 2px solid transparent;
+	background-clip: padding-box;
+}
+
+.dwl-grid-block:hover {
+	transform: scaleY(1.04);
+	filter: brightness(1.1);
 }
 
 /* To-Do section */
+
+.dwl-todo-header {
+	cursor: pointer;
+}
+
+.dwl-todo-toggle-icon {
+	font-size: 10px;
+	color: var(--dwl-text-faint);
+	transition: transform 0.15s;
+}
+
+.dwl-todo-toggle-icon.is-collapsed {
+	transform: rotate(-90deg);
+}
+
+.dwl-todo-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
 
 .dwl-todo-input-wrap {
 	padding: 0;
 }
 
-.dwl-todo-input {
+.dwl-todo-input.dwl-todo-input {
 	width: 100%;
 	font-size: var(--font-ui-small);
 	padding: 0.3rem 0.5rem;
@@ -247,10 +314,20 @@
 	background: var(--dwl-bg);
 	color: var(--dwl-text);
 	outline: none;
+	box-shadow: none;
 }
 
-.dwl-todo-input:focus {
+.dwl-todo-input.dwl-todo-input:hover {
+	background: var(--dwl-bg);
+	color: var(--dwl-text);
+	border-color: var(--dwl-border-light);
+}
+
+.dwl-todo-input.dwl-todo-input:focus {
+	border-width: 1px;
 	border-color: var(--dwl-accent);
+	outline: none;
+	box-shadow: none;
 }
 
 .dwl-todo-list {
@@ -268,6 +345,7 @@
 	gap: 0.5rem;
 	padding: 0.15rem 0.2rem;
 	border-radius: var(--radius-s);
+	font-size: var(--font-ui-small);
 }
 
 .dwl-todo-item:hover {
@@ -289,10 +367,12 @@
 }
 
 /* Minimal ✕ delete button — design.md §4.1: invisible until item hover,
-   background never changes, only the text color reacts. */
-.dwl-todo-delete-btn {
+   background never changes, only the text color reacts. Class repeated for
+   specificity, same reasoning as .dwl-header-btn above. */
+.dwl-todo-delete-btn.dwl-todo-delete-btn {
 	border: none;
 	background: transparent;
+	box-shadow: none;
 	color: var(--dwl-text-faint);
 	font-size: var(--font-ui-smaller);
 	padding: 0.1rem 0.3rem;
@@ -301,30 +381,90 @@
 	transition: opacity 0.15s, color 0.15s;
 }
 
-.dwl-todo-item:hover .dwl-todo-delete-btn {
+.dwl-todo-item:hover .dwl-todo-delete-btn.dwl-todo-delete-btn,
+.dwl-todo-delete-btn.dwl-todo-delete-btn:focus {
 	opacity: 1;
 }
 
-.dwl-todo-delete-btn:hover {
+.dwl-todo-delete-btn.dwl-todo-delete-btn:hover,
+.dwl-todo-delete-btn.dwl-todo-delete-btn:focus {
 	color: #ef4444;
+	background: transparent;
+	box-shadow: none;
+	outline: none;
 }
 
-/* Modals (ConfirmCreateNoteModal, ConfirmDeleteModal, EventEntryModal) —
-   design.md §3: follow the SYSTEM theme (Canvas/CanvasText), not the
-   sidebar's own light/dark setting and not Obsidian's in-app theme either,
-   so the popup always stays readable regardless of how the surrounding
-   window is themed. This is intentionally NOT affected by --dwl-* tokens. */
+/* Modals (ConfirmDeleteModal, TimelineModal) — design.md §3: follow the
+   SYSTEM theme (Canvas/CanvasText), not the sidebar's own light/dark setting
+   and not Obsidian's in-app theme either, so the popup always stays readable
+   regardless of how the surrounding window is themed. This is intentionally
+   NOT affected by --dwl-* tokens. */
 
 .dwl-confirm-modal,
 .dwl-event-modal {
 	color: CanvasText;
 }
 
-.dwl-modal-title {
-	margin: 0 0 0.6rem;
+.dwl-modal-body {
+	display: flex;
+	flex-direction: column;
+}
+
+.dwl-category-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+/* Neutral pill + small color-preview dot (NOT a fully category-colored
+   chip) — matches DayTime Tracker's timeline-modal-color-chip exactly. */
+.dwl-category-chip.dwl-category-chip {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	background: rgba(0, 0, 0, 0.05);
+	border: 2px solid transparent;
+	border-radius: 20px;
+	padding: 0.3rem 0.7rem;
+	font-size: var(--font-ui-smaller);
+	font-weight: 500;
+	cursor: pointer;
+	color: CanvasText;
+	font-family: inherit;
+	transition: all 0.15s ease;
+	box-shadow: none;
+}
+
+.dwl-category-chip.dwl-category-chip.is-selected {
+	border-color: rgba(0, 0, 0, 0.45);
+	transform: scale(1.05);
+}
+
+.dwl-category-chip-preview {
+	width: 10px;
+	height: 10px;
+	min-width: 10px;
+	border-radius: 50%;
+}
+
+/* Modal title uses Obsidian's own native title bar (this.titleEl) rather
+   than a custom heading — scoped under our container class so it doesn't
+   affect other plugins' modals. Matches DayTime Tracker's
+   .timeline-custom-modal-container .modal-title structure exactly. */
+.dwl-confirm-modal .modal,
+.dwl-event-modal .modal {
+	border-radius: 12px;
+}
+
+.dwl-confirm-modal .modal-title,
+.dwl-event-modal .modal-title {
+	margin: 0;
+	padding-bottom: 0.6rem;
 	font-size: 0.95rem;
 	font-weight: 700;
 	color: CanvasText;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	text-align: left;
 }
 
 .dwl-modal-text {
@@ -355,8 +495,8 @@
 	gap: 0.4rem;
 }
 
-.dwl-modal-time-input,
-.dwl-modal-textarea {
+.dwl-modal-time-input.dwl-modal-time-input,
+.dwl-modal-textarea.dwl-modal-textarea {
 	width: 100%;
 	min-width: 0;
 	padding: 0.3rem 0.5rem;
@@ -367,11 +507,13 @@
 	color: CanvasText;
 	background: Canvas;
 	outline: none;
+	box-shadow: none;
 }
 
-.dwl-modal-time-input:focus,
-.dwl-modal-textarea:focus {
+.dwl-modal-time-input.dwl-modal-time-input:focus,
+.dwl-modal-textarea.dwl-modal-textarea:focus {
 	border-color: #a0aec0;
+	box-shadow: none;
 }
 
 .dwl-modal-textarea {
@@ -392,9 +534,9 @@
    These are also shared by modals, so they intentionally use their own
    fixed hex values rather than --dwl-* tokens (same reasoning as above). */
 
-.dwl-modal-btn-save,
-.dwl-modal-btn-cancel,
-.dwl-modal-btn-delete {
+.dwl-modal-btn-save.dwl-modal-btn-save,
+.dwl-modal-btn-cancel.dwl-modal-btn-cancel,
+.dwl-modal-btn-delete.dwl-modal-btn-delete {
 	padding: 0.3rem 0.7rem;
 	border-radius: var(--radius-s);
 	font-size: var(--font-ui-smaller);
@@ -402,36 +544,37 @@
 	cursor: pointer;
 	font-family: inherit;
 	transition: background 0.15s;
+	box-shadow: none;
 }
 
-.dwl-modal-btn-save {
+.dwl-modal-btn-save.dwl-modal-btn-save {
 	background: #e2e8f0;
 	color: #1e293b;
 	border: 1px solid #64748b;
 }
 
-.dwl-modal-btn-save:hover {
+.dwl-modal-btn-save.dwl-modal-btn-save:hover {
 	background: #cbd5e1;
 }
 
-.dwl-modal-btn-cancel {
+.dwl-modal-btn-cancel.dwl-modal-btn-cancel {
 	background: transparent;
 	color: #475569;
 	border: 1px solid #cbd5e1;
 }
 
-.dwl-modal-btn-cancel:hover {
+.dwl-modal-btn-cancel.dwl-modal-btn-cancel:hover {
 	background: #f1f5f9;
 }
 
-.dwl-modal-btn-delete {
+.dwl-modal-btn-delete.dwl-modal-btn-delete {
 	background: transparent;
 	color: #991b1b;
 	border: 1px solid #fca5a5;
 	margin-right: auto;
 }
 
-.dwl-modal-btn-delete:hover {
+.dwl-modal-btn-delete.dwl-modal-btn-delete:hover {
 	background: #fee2e2;
 }
 
@@ -520,4 +663,35 @@
 
 .dwl-dashboard-note-item:hover {
 	background: var(--background-modifier-hover);
+}
+
+/* Settings tab — category management rows (design.md §14) */
+
+.dwl-category-setting-item.dwl-category-setting-item {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.dwl-category-setting-item.dwl-category-setting-item .setting-item-info {
+	display: none;
+}
+
+.dwl-category-setting-item.dwl-category-setting-item .setting-item-control {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	width: 100%;
+	gap: 8px;
+}
+
+.dwl-category-setting-item .setting-item-control input[type="text"] {
+	max-width: 160px;
+}
+
+.dwl-category-section-desc {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	margin-top: 0;
+	margin-bottom: 12px;
 }

@@ -37,7 +37,7 @@ export class DashboardView extends ItemView {
 	}
 
 	getIcon(): string {
-		return "calendar-clock";
+		return "gauge";
 	}
 
 	async onOpen(): Promise<void> {
@@ -121,8 +121,8 @@ export class DashboardView extends ItemView {
 		const todoRateText =
 			stats.recentTodoTotal > 0
 				? `${stats.recentTodoCompleted}/${stats.recentTodoTotal} (${Math.round(
-						(stats.recentTodoCompleted / stats.recentTodoTotal) * 100
-					)}%)`
+					(stats.recentTodoCompleted / stats.recentTodoTotal) * 100
+				)}%)`
 				: "-";
 		this.renderStatCard(grid, t("statTodoRate", language), todoRateText);
 

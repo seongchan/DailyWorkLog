@@ -6,34 +6,39 @@ An Obsidian plugin that visualizes daily time tracking (Events) and To-Do lists 
 
 ## Features
 
-- **Sidebar view**: a monthly calendar, an Event (timeline) section, and a To-Do section — all in the right sidebar.
-- **Inline editing**: add/edit/delete Events and To-Dos directly from the sidebar, without opening the note.
+- **Grid timeline**: a 10-minute-cell grid in the sidebar — drag across cells to log a new time block, click an existing block to edit it.
+- **Categories**: color-coded categories (5 built-in — Work/Study/Rest/Reading/Exercise — plus up to 10 custom), stored as a `[Category]` tag right in the note body.
+- **Collapsible To-Do panel**: docked at the bottom of the sidebar, with inline add/check/delete.
+- **PDF / HTML export**: turn any day into a standalone, printable HTML file.
+- **Configurable daily note folder**: notes don't have to live at the vault root, with folder autocomplete in settings.
 - **Minimal metadata**: everything is read from three plain markdown headings — no frontmatter needed.
-- **Multi-language markers**: notes can use English (`_Event` / `_ToDo` / `_Diary`) or Korean (`_이벤트` / `_할일` / `_다이어리`) headings, recognized simultaneously regardless of your settings.
-- **Two independent themes**: a Light/Dark toggle just for the sidebar (separate from Obsidian's own theme), and a Dashboard that follows Obsidian's theme automatically.
+- **Multi-language, backward-compatible markers**: notes use `Event` / `ToDo` / `Diary` (or Korean `이벤트` / `할일` / `다이어리`) headings; the legacy underscore-prefixed spelling (`_Event` etc.) from older notes is still recognized so nothing breaks.
+- **Automatic UI language detection**: picked up from Obsidian's own language on first run, overridable in settings.
+- **Two independent themes**: a Light/Dark toggle just for the sidebar (separate from Obsidian's own theme, popups always follow the system theme), and a Dashboard that follows Obsidian's theme automatically.
 - **Dashboard**: a vault-wide summary — total notes, current streak, date range, and your last-30-days To-Do completion rate and total Event time.
-- **UI language**: English or Korean, switchable in settings.
 
 ## Daily Note Format
 
 Daily notes must be named `YYYY-MM-DD.md`. A new note created through the plugin looks like this:
 
 ```markdown
-# _Event
+# Event
 
-- 9:00 - 10:30 Team meeting
+- 9:00 - 10:30 [Work] Team meeting
 
-# _ToDo
+# ToDo
 
 - [x] Submit weekly report
 - [ ] Review pull requests
 
-# _Diary
+# Diary
 
 Free-form notes go here — not parsed or shown in the sidebar.
 ```
 
+- The `[Category]` tag right after the time range is optional — `- 9:00 - 10:30 Team meeting` (no category) still works.
 - Blocks can appear in any order.
+- Notes written before this format existed (`# _Event` etc., with a leading underscore) keep working — the plugin recognizes both spellings.
 - If none of the three headings are present, the plugin falls back to treating any `- [ ]`/`- [x]` line as a To-Do and any `- HH:mm - HH:mm ...` line as an Event, anywhere in the file.
 
 ## Installation
@@ -55,14 +60,40 @@ For active development, use `npm run dev` instead — it rebuilds automatically 
 
 ## Usage
 
-- **Dashboard**: click the ribbon icon (calendar-clock), or run the command **"Daily Work Log 대시보드 열기"** from the Command Palette. Opens as a normal tab in the main workspace.
-- **Sidebar**: run the command **"Daily Work Log 사이드바 열기"** from the Command Palette (`Cmd/Ctrl+P`). You can assign it a hotkey in **Settings → Hotkeys**.
-- Click a date on the calendar to open that day's note (a confirmation prompt appears if it doesn't exist yet); click **Today** to jump straight to today's note without a prompt.
+### From the sidebar
+
+- **Dashboard**: click the ribbon icon (gauge), or run **"Open dashboard"** from the Command Palette. Opens as a normal tab in the main workspace.
+- **Sidebar**: click the ribbon icon (calendar-clock), or run **"Open sidebar"** from the Command Palette (`Cmd/Ctrl+P`). You can assign either a hotkey in **Settings → Hotkeys**.
+- Drag across the grid to log a new time block; click an existing block to edit or delete it.
+- Use the **Today** button in the sidebar header to open (or create) today's note; **Print** exports the current day as a printable HTML file.
+
+### Directly in the note
+
+You don't need the sidebar at all — the sidebar is just a UI on top of plain markdown, so typing directly into the note body works exactly the same way. Under each heading, add lines in this format:
+
+```markdown
+# Event
+
+- 9:00 - 10:30 [Work] Team meeting
+- 14:00 - 14:30 Quick call with no category
+
+# ToDo
+
+- [ ] Something to do
+- [x] Something already done
+```
+
+- `- HH:mm - HH:mm [Category] description` for an Event. The `[Category]` part is optional; the category name must match one of the names configured in **Settings → Category Management** to pick up its color (an unrecognized or missing category just shows as uncategorized).
+- `- [ ] text` / `- [x] text` for a To-Do, same as a normal Obsidian checkbox.
+- Save the file (or just keep typing — Obsidian autosaves) and the sidebar/Dashboard pick up the change automatically.
 
 ## Settings
 
-- **마커 언어 (Marker language)**: which language's heading labels get inserted into newly created notes. Existing notes in either language keep working regardless of this setting.
-- **사이드바 테마 (Sidebar theme)**: Light or Dark, for the sidebar only.
+- **Day Start Hour / Day End Hour**: the hour range shown on the grid.
+- **Daily Note Folder**: where new daily notes are created (vault root by default), with folder autocomplete.
+- **Language**: auto-detected from Obsidian's own UI language on first run. Controls the marker labels inserted into new notes and all sidebar/settings text — existing notes in either language keep parsing correctly regardless of this setting.
+- **Background Theme Mode**: Light or Dark, for the sidebar only.
+- **Category Management**: add, rename, recolor, or delete categories, or reset to the defaults.
 
 ## Development
 
@@ -71,7 +102,17 @@ npm test    # run the Vitest unit test suite
 npm run build   # type-check (tsc) + production build
 ```
 
-See [`.agents/AGENTS.md`](.agents/AGENTS.md) and [`.agents/design.md`](.agents/design.md) for the full architecture and design spec.
+## Changelog
+
+###  — 2026-08-05
+
+- Sidebar rebuilt as a 10-minute grid timeline (drag to select a time range), replacing the old list-and-calendar layout. Calendar date navigation has been removed — use Obsidian's own file explorer or quick switcher to jump to another day's note.
+- Added color-coded categories (5 built-in + up to 10 custom), stored as an optional `[Category]` tag in each Event line.
+- Simplified the block markers to `Event` / `ToDo` / `Diary` (dropping the leading underscore, which rendered as italics in some viewers). Notes written with the old `_Event` / `_ToDo` / `_Diary` markers keep working.
+- Added PDF/HTML export for a single day's timeline and To-Do list.
+- Added a configurable daily note folder (with autocomplete), instead of always using the vault root.
+- Added automatic UI language detection on first run.
+- Expanded the settings screen: hour range, daily note folder, language, sidebar theme, and full category management.
 
 ## License
 

@@ -1,9 +1,16 @@
 name: Release
 
+# Manually triggered only (Actions tab -> "Run workflow", or `gh workflow run
+# release.yml`). We intentionally do NOT trigger on tag push: a tag created
+# by a local `git tag`/`git push --tags` is never GitHub-signed, so it never
+# shows the "Verified" badge. Instead, the local release step is
+# `npm version <bump> --no-git-tag-version` (bumps manifest.json/
+# versions.json via the existing "version" script, but creates no commit or
+# tag) followed by a normal commit+push — then THIS workflow reads the
+# version straight from manifest.json and has `gh release create` create the
+# tag itself via the API, which IS GitHub-signed and Verified.
 on:
-  push:
-    tags:
-      - "*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -52,25 +59,39 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 모든 태그 강제 가져오기
+          # 기존 태그 전부 가져오기 (이전 태그 탐색용)
           git fetch --tags --force
-          tag="${GITHUB_REF_NAME}"
-          
-          # 이전 태그 식별 (없을 경우 첫 태그로 간주)
-          prev_tag=$(git describe --tags --abbrev=0 "$tag"^ 2>/dev/null || echo "")
-          
-          if [ -n "$prev_tag" ]; then
-            echo "Generating changelog between $prev_tag and $tag"
-            git log "$prev_tag".."$tag" --oneline --pretty=format:"* %s (%h)" > changelog.txt
-          else
-            echo "No previous tag found. Generating changelog for all commits up to $tag"
-            git log "$tag" --oneline --pretty=format:"* %s (%h)" > changelog.txt
+
+          # 태그명은 더 이상 git ref가 아니라 manifest.json에 커밋되어 있는
+          # 버전값에서 직접 읽는다 (로컬에서 `npm version --no-git-tag-version`
+          # 으로 갱신되어 이미 main에 push되어 있는 상태 — 위 on: 주석 참고).
+          tag=$(node -p "require('./manifest.json').version")
+          echo "Releasing version $tag"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "::error::Release $tag already exists. Bump the version locally before re-running this workflow."
+            exit 1
           fi
-          
-          # 생성된 changelog.txt로 릴리즈 노트 등록
+
+          # 이전 태그 식별 (현재 커밋 기준으로 가장 최근 태그 — 이 시점엔 $tag
+          # 태그가 아직 존재하지 않으므로 단순히 HEAD 기준으로 찾으면 된다)
+          prev_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -n "$prev_tag" ]; then
+            echo "Generating changelog between $prev_tag and HEAD"
+            git log "$prev_tag"..HEAD --oneline --pretty=format:"* %s (%h)" > changelog.txt
+          else
+            echo "No previous tag found. Generating changelog for all commits up to HEAD"
+            git log --oneline --pretty=format:"* %s (%h)" > changelog.txt
+          fi
+
+          # 생성된 changelog.txt로 릴리즈 노트 등록. 태그가 아직 없으므로
+          # --target으로 지금 이 커밋을 명시해야 gh가 그 지점에 태그를 새로
+          # 만든다 — 이렇게 API로 생성된 태그라야 GitHub 서명(Verified)이 붙는다.
           gh release create "$tag" \
             --title "$tag" \
             --notes-file changelog.txt \
+            --target "$GITHUB_SHA" \
             dist/main.js \
             dist/manifest.json \
             dist/styles.css

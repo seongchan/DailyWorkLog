@@ -12,6 +12,7 @@ import {
 	timelineLineMatches,
 	TIME_VALUE_REGEX,
 	timeToMinutes,
+	minutesToTime,
 	todoLineMatches,
 } from "./parser";
 
@@ -114,19 +115,73 @@ describe("splitBlocksByMarker", () => {
 		const layout = splitBlocksByMarker(lines, 0);
 		expect(layout.blocks.todo).toEqual({ start: 1, end: 1 });
 	});
+
+	it("recognizes the no-underscore marker spelling (2026-08 default, AGENTS.md 1.3)", () => {
+		const lines = ["# Event", "- 9:00 - 10:00 work", "# ToDo", "- [ ] task", "# Diary", "notes"];
+		const layout = splitBlocksByMarker(lines, 0);
+		expect(layout.legacy).toBe(false);
+		expect(layout.blocks.timeline).toEqual({ start: 1, end: 1 });
+		expect(layout.blocks.todo).toEqual({ start: 3, end: 3 });
+		expect(layout.blocks.journal).toEqual({ start: 5, end: 5 });
+	});
+
+	it("recognizes the no-underscore Korean marker spelling", () => {
+		const lines = ["# 이벤트", "- 9:00 - 10:00 회의", "# 할일", "- [ ] 작업"];
+		const layout = splitBlocksByMarker(lines, 0);
+		expect(layout.blocks.timeline).toEqual({ start: 1, end: 1 });
+		expect(layout.blocks.todo).toEqual({ start: 3, end: 3 });
+	});
+
+	it("recognizes a mix of legacy underscore and current no-underscore spellings in the same file", () => {
+		// e.g. a note started before the 2026-08 spelling change, edited after upgrading.
+		const lines = ["# _Event", "- 9:00 - 10:00 work", "# ToDo", "- [ ] task", "# _Diary", "notes"];
+		const layout = splitBlocksByMarker(lines, 0);
+		expect(layout.blocks.timeline).toEqual({ start: 1, end: 1 });
+		expect(layout.blocks.todo).toEqual({ start: 3, end: 3 });
+		expect(layout.blocks.journal).toEqual({ start: 5, end: 5 });
+	});
 });
 
 describe("parseTimeline", () => {
 	it("extracts start, end, description and line index", () => {
 		const lines = ["# _Event", "- 09:00 - 10:30 Coding session"];
 		const items = parseTimeline(lines, { start: 0, end: 1 });
-		expect(items).toEqual([{ line: 1, start: "09:00", end: "10:30", description: "Coding session" }]);
+		expect(items).toEqual([
+			{ line: 1, start: "09:00", end: "10:30", category: undefined, description: "Coding session" },
+		]);
 	});
 
 	it("allows single-digit hours and a tilde separator", () => {
 		const lines = ["- 9:00~10:00 short form"];
 		const items = parseTimeline(lines, { start: 0, end: 0 });
 		expect(items[0]).toMatchObject({ start: "9:00", end: "10:00" });
+	});
+
+	it("extracts an optional [Category] token (AGENTS.md 1.4.1)", () => {
+		const lines = ["- 09:00 - 10:30 [업무] 회의 준비"];
+		const items = parseTimeline(lines, { start: 0, end: 0 });
+		expect(items).toEqual([
+			{ line: 0, start: "09:00", end: "10:30", category: "업무", description: "회의 준비" },
+		]);
+	});
+
+	it("treats lines without a [Category] token as uncategorized (category: undefined)", () => {
+		// Pre-category-feature lines must keep parsing exactly as before.
+		const lines = ["- 09:00 - 10:30 Coding session"];
+		const items = parseTimeline(lines, { start: 0, end: 0 });
+		expect(items[0].category).toBeUndefined();
+	});
+
+	it("allows a category with no trailing description", () => {
+		const lines = ["- 09:00 - 10:30 [Work]"];
+		const items = parseTimeline(lines, { start: 0, end: 0 });
+		expect(items[0]).toMatchObject({ category: "Work", description: "" });
+	});
+
+	it("treats an empty [] category token as uncategorized rather than an empty string", () => {
+		const lines = ["- 09:00 - 10:30 [] some text"];
+		const items = parseTimeline(lines, { start: 0, end: 0 });
+		expect(items[0]).toMatchObject({ category: undefined, description: "some text" });
 	});
 });
 
@@ -281,6 +336,18 @@ describe("todoLineMatches / timelineLineMatches", () => {
 		expect(timelineLineMatches("- 9:00 - 10:30 work", item)).toBe(false); // end changed
 		expect(timelineLineMatches("- 9:00 - 10:00 something else", item)).toBe(false); // description changed
 	});
+
+	it("matches on category too, once categories are involved (AGENTS.md 1.4.1)", () => {
+		const item = { line: 0, start: "9:00", end: "10:00", category: "Work", description: "meeting" };
+		expect(timelineLineMatches("- 9:00 - 10:00 [Work] meeting", item)).toBe(true);
+		expect(timelineLineMatches("- 9:00 - 10:00 [Study] meeting", item)).toBe(false); // category changed
+		expect(timelineLineMatches("- 9:00 - 10:00 meeting", item)).toBe(false); // category dropped entirely
+	});
+
+	it("an uncategorized item does not match a line that gained a category", () => {
+		const item = { line: 0, start: "9:00", end: "10:00", description: "work" };
+		expect(timelineLineMatches("- 9:00 - 10:00 [Work] work", item)).toBe(false);
+	});
 });
 
 describe("timeToMinutes / timelineDurationMinutes", () => {
@@ -288,6 +355,12 @@ describe("timeToMinutes / timelineDurationMinutes", () => {
 		expect(timeToMinutes("9:00")).toBe(540);
 		expect(timeToMinutes("00:00")).toBe(0);
 		expect(timeToMinutes("23:59")).toBe(1439);
+	});
+
+	it("minutesToTime is the inverse of timeToMinutes (zero-padded HH:mm)", () => {
+		expect(minutesToTime(540)).toBe("09:00");
+		expect(minutesToTime(0)).toBe("00:00");
+		expect(minutesToTime(1439)).toBe("23:59");
 	});
 
 	it("computes a same-day duration", () => {

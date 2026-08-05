@@ -48,8 +48,10 @@ export function isSameDate(a: Date, b: Date): boolean {
  * place (AGENTS.md 2. New Daily Note Creation) to minimize hand-typing
  * typo risk for future edits. `language` only picks which label text gets
  * inserted here — the parser recognizes every supported language's labels
- * regardless of this setting, so switching languages later never breaks
- * notes already scaffolded under a different one.
+ * (and the legacy underscore-prefixed spelling, AGENTS.md 1.3) regardless
+ * of this setting, so switching languages later never breaks notes already
+ * scaffolded under a different one. `MARKER_LABELS` holds the current
+ * (no-underscore) spelling only — this never scaffolds the legacy form.
  */
 export function buildSkeletonContent(language: MarkerLanguage): string {
 	return [
