@@ -58,6 +58,14 @@ npm run build   # outputs dist/main.js, dist/manifest.json, dist/styles.css
 
 For active development, use `npm run dev` instead — it rebuilds automatically on every change (esbuild watch mode).
 
+> [!TIP]
+> **Switching from DayTime Tracker?** That plugin stores its data as `timeline-logs` / `timeline-todos` YAML frontmatter properties instead of plain body text. `scripts/migrate-from-daytimetracker.mjs` converts your existing daily notes to this plugin's format:
+> ```bash
+> node scripts/migrate-from-daytimetracker.mjs <path-to-your-vault>            # dry run — writes nothing, just previews
+> node scripts/migrate-from-daytimetracker.mjs <path-to-your-vault> --write    # actually rewrite the files
+> ```
+> Always run the dry run first and back up your vault before using `--write` — this rewrites daily notes in place and there's no undo. See the comment at the top of the script for exactly what does and doesn't get migrated.
+
 ## Usage
 
 ### From the sidebar

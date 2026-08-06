@@ -58,6 +58,14 @@ npm run build   # dist/main.js, dist/manifest.json, dist/styles.css 생성
 
 개발 중에는 `npm run dev`를 사용하세요 — 코드가 바뀔 때마다 자동으로 다시 빌드됩니다 (esbuild watch 모드).
 
+> [!TIP]
+> **DayTime Tracker에서 넘어오시나요?** 그 플러그인은 데이터를 본문이 아니라 `timeline-logs` / `timeline-todos`라는 YAML frontmatter 프로퍼티에 저장합니다. `scripts/migrate-from-daytimetracker.mjs`로 기존 일일 노트를 이 플러그인 형식으로 변환할 수 있습니다.
+> ```bash
+> node scripts/migrate-from-daytimetracker.mjs <볼트 경로>            # 드라이런 — 아무것도 안 쓰고 미리보기만
+> node scripts/migrate-from-daytimetracker.mjs <볼트 경로> --write    # 실제로 파일 수정
+> ```
+> 항상 드라이런을 먼저 돌려보고, `--write`를 쓰기 전에 볼트를 백업하세요 — 노트를 그 자리에서 덮어쓰며 되돌릴 방법이 없습니다. 정확히 무엇이 변환되고 무엇이 안 되는지는 스크립트 상단 주석을 참고하세요.
+
 ## 사용 방법
 
 ### 사이드바에서
