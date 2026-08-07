@@ -58,9 +58,14 @@ npm run build   # outputs dist/main.js, dist/manifest.json, dist/styles.css
 
 For active development, use `npm run dev` instead — it rebuilds automatically on every change (esbuild watch mode).
 
-> [!TIP]
-> **Switching from DayTime Tracker?** That plugin stores its data as `timeline-logs` / `timeline-todos` YAML frontmatter properties instead of plain body text. `scripts/migrate-from-daytimetracker.mjs` converts your existing daily notes to this plugin's format:
+> #### **[!TIP]**  
+> **Switching from DayTime Tracker?** That plugin stores its data as `timeline-logs` / `timeline-todos` YAML frontmatter properties instead of plain body text. `scripts/migrate-from-daytimetracker.mjs` converts your existing daily notes to this plugin's format.
+>
+> This script is only in the source repository, not in the release download (the release only contains `main.js`/`manifest.json`/`styles.css`) — you'll need to clone this repo and run `npm install` first:
 > ```bash
+> git clone https://github.com/seongchan/DailyWorkLog.git
+> cd DailyWorkLog
+> npm install
 > node scripts/migrate-from-daytimetracker.mjs <path-to-your-vault>            # dry run — writes nothing, just previews
 > node scripts/migrate-from-daytimetracker.mjs <path-to-your-vault> --write    # actually rewrite the files
 > ```
@@ -111,6 +116,10 @@ npm run build   # type-check (tsc) + production build
 ```
 
 ## Changelog
+
+### 0.3.1 (2026-08-07)
+
+- **Added a DayTime Tracker migration script**: `scripts/migrate-from-daytimetracker.mjs` — converts existing daily notes written by DayTime Tracker (stored in `timeline-logs`/`timeline-todos` frontmatter properties) into this plugin's body-text format. Not included in the release download — you need to clone the source repository to use it (see the tip under "Installation" above).
 
 ### 0.3.0 (2026-08-05)
 

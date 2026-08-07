@@ -58,9 +58,14 @@ npm run build   # dist/main.js, dist/manifest.json, dist/styles.css 생성
 
 개발 중에는 `npm run dev`를 사용하세요 — 코드가 바뀔 때마다 자동으로 다시 빌드됩니다 (esbuild watch 모드).
 
-> [!TIP]
+> #### **[!TIP]**  
 > **DayTime Tracker에서 넘어오시나요?** 그 플러그인은 데이터를 본문이 아니라 `timeline-logs` / `timeline-todos`라는 YAML frontmatter 프로퍼티에 저장합니다. `scripts/migrate-from-daytimetracker.mjs`로 기존 일일 노트를 이 플러그인 형식으로 변환할 수 있습니다.
+>
+> 이 스크립트는 소스 저장소에만 있고 릴리스 다운로드에는 포함되어 있지 않습니다(릴리스에는 `main.js`/`manifest.json`/`styles.css`만 들어있음) — 먼저 이 저장소를 clone하고 `npm install`을 실행해야 합니다:
 > ```bash
+> git clone https://github.com/seongchan/DailyWorkLog.git
+> cd DailyWorkLog
+> npm install
 > node scripts/migrate-from-daytimetracker.mjs <볼트 경로>            # 드라이런 — 아무것도 안 쓰고 미리보기만
 > node scripts/migrate-from-daytimetracker.mjs <볼트 경로> --write    # 실제로 파일 수정
 > ```
@@ -111,6 +116,10 @@ npm run build    # 타입 체크(tsc) + 프로덕션 빌드
 ```
 
 ## 변경 이력
+
+### 0.3.1 (2026-08-07)
+
+- **DayTime Tracker 마이그레이션 스크립트 추가**: `scripts/migrate-from-daytimetracker.mjs` — DayTime Tracker가 frontmatter 프로퍼티(`timeline-logs`/`timeline-todos`)에 저장한 기존 노트를 이 플러그인의 본문 텍스트 형식으로 변환합니다. 릴리스 배포 파일에는 포함되지 않고 소스 저장소를 clone해야 사용 가능합니다 (자세한 내용은 위 "설치 방법"의 팁 참고).
 
 ### 0.3.0 (2026-08-05)
 
