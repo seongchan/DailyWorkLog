@@ -56,6 +56,15 @@ function parseArgs(argv) {
 }
 
 function stripFrontmatter(content) {
+	// Strip a leading UTF-8 BOM if present — e.g. files saved by some Windows
+	// editors (PowerShell's `Set-Content -Encoding utf8`, some Notepad
+	// versions) include one, even though Obsidian itself doesn't. Without
+	// this, such a file's first line would be "﻿---" instead of "---",
+	// so it would silently fail the check below and get skipped as "nothing
+	// to migrate" instead of being converted — a silent-skip we specifically
+	// don't want in a script that irreversibly rewrites the user's notes.
+	if (content.charCodeAt(0) === 0xfeff) content = content.slice(1);
+
 	const lines = content.split("\n");
 	if ((lines[0] ?? "").trimEnd() !== FRONTMATTER_DELIM) return null;
 	for (let i = 1; i < lines.length; i++) {
