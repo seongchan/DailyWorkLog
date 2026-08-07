@@ -63,3 +63,15 @@ export function buildSkeletonContent(language: MarkerLanguage): string {
 		"",
 	].join("\n");
 }
+
+/**
+ * Checks whether a vault-relative file path is located inside the configured
+ * `dailyNoteFolder`. An empty or whitespace-only folder setting allows files
+ * anywhere in the vault.
+ */
+export function isInDailyNoteFolder(filePath: string, dailyNoteFolder: string): boolean {
+	const folder = dailyNoteFolder.trim().replace(/^\/+|\/+$/g, "");
+	if (!folder) return true;
+	return filePath === folder || filePath.startsWith(`${folder}/`);
+}
+

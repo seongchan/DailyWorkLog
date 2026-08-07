@@ -14,8 +14,9 @@ An Obsidian plugin that visualizes daily time tracking (Events) and To-Do lists 
 - **Minimal metadata**: everything is read from three plain markdown headings — no frontmatter needed.
 - **Multi-language, backward-compatible markers**: notes use `Event` / `ToDo` / `Diary` (or Korean `이벤트` / `할일` / `다이어리`) headings; the legacy underscore-prefixed spelling (`_Event` etc.) from older notes is still recognized so nothing breaks.
 - **Automatic UI language detection**: picked up from Obsidian's own language on first run, overridable in settings.
-- **Two independent themes**: a Light/Dark toggle just for the sidebar (separate from Obsidian's own theme, popups always follow the system theme), and a Dashboard that follows Obsidian's theme automatically.
-- **Dashboard**: a vault-wide summary — total notes, current streak, date range, and your last-30-days To-Do completion rate and total Event time.
+- **Two independent themes**: a Light/Dark toggle just for the sidebar (separate from Obsidian's own theme, popups always follow the system theme), and Work Insights that follows Obsidian's theme automatically.
+- **Work Insights**: a vault summary — total notes in configured folder, current streak, time window filtering (7d/30d/90d/All), To-Do completion rate, total event time and daily average, category time breakdown visualization (Multi-Segment Progress Bar), and recent note activity history.
+
 
 ## Daily Note Format
 
@@ -75,7 +76,7 @@ For active development, use `npm run dev` instead — it rebuilds automatically 
 
 ### From the sidebar
 
-- **Dashboard**: click the ribbon icon (gauge), or run **"Open dashboard"** from the Command Palette. Opens as a normal tab in the main workspace.
+- **Work Insights**: click the ribbon icon (gauge), or run **"Open Work Insights"** from the Command Palette. Opens as a normal tab in the main workspace.
 - **Sidebar**: click the ribbon icon (calendar-clock), or run **"Open sidebar"** from the Command Palette (`Cmd/Ctrl+P`). You can assign either a hotkey in **Settings → Hotkeys**.
 - Drag across the grid to log a new time block; click an existing block to edit or delete it.
 - Use the **Today** button in the sidebar header to open (or create) today's note; **Print** exports the current day as a printable HTML file.
@@ -98,7 +99,8 @@ You don't need the sidebar at all — the sidebar is just a UI on top of plain m
 
 - `- HH:mm - HH:mm [Category] description` for an Event. The `[Category]` part is optional; the category name must match one of the names configured in **Settings → Category Management** to pick up its color (an unrecognized or missing category just shows as uncategorized).
 - `- [ ] text` / `- [x] text` for a To-Do, same as a normal Obsidian checkbox.
-- Save the file (or just keep typing — Obsidian autosaves) and the sidebar/Dashboard pick up the change automatically.
+- Save the file (or just keep typing — Obsidian autosaves) and the sidebar/Work Insights pick up the change automatically.
+
 
 ## Settings
 
@@ -117,7 +119,18 @@ npm run build   # type-check (tsc) + production build
 
 ## Changelog
 
+### 0.4.0 (2026-08-07)
+
+- **Redesigned Work Insights view**:
+  - Overhauled the summary view into a refined UI.
+  - **Configurable Folder Filtering (`dailyNoteFolder`)**: collects notes strictly from the folder specified in settings, rather than the entire vault.
+  - **Time Window Filter**: filter statistics by Last 7 Days, 30 Days, 90 Days, or All Time in real-time.
+  - **Category Time Breakdown**: visual multi-segment progress bar and legend grid reflecting configured category colors.
+  - **Recent Note Activities**: card-based history list displaying per-note To-Do progress, top category badge, and recorded event time (click to open note).
+  - **Renamed**: updated the view name from 'Dashboard' to 'Work Insights' for better clarity.
+
 ### 0.3.1 (2026-08-07)
+
 
 - **Added a DayTime Tracker migration script**: `scripts/migrate-from-daytimetracker.mjs` — converts existing daily notes written by DayTime Tracker (stored in `timeline-logs`/`timeline-todos` frontmatter properties) into this plugin's body-text format. Not included in the release download — you need to clone the source repository to use it (see the tip under "Installation" above).
 

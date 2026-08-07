@@ -85,14 +85,24 @@ export type UIStringKey =
 	| "btnAdd"
 	| "alertCatNameEmpty"
 	| "alertCatLimitMax"
-	| "alertCatNameExists";
+	| "alertCatNameExists"
+	| "window7Days"
+	| "window30Days"
+	| "window90Days"
+	| "windowAllTime"
+	| "statAvgPerDay"
+	| "statTopCategory"
+	| "statTopCategoryPct"
+	| "categoryDistTitle"
+	| "periodSummaryTitle"
+	| "activityNotesTitle";
 
 export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 	en: {
 		ribbonOpenSidebar: "Open DailyWorkLog",
-		ribbonOpenDashboard: "Open dashboard",
+		ribbonOpenDashboard: "Open Work Insights",
 		commandOpenSidebar: "Open sidebar",
-		commandOpenDashboard: "Open dashboard",
+		commandOpenDashboard: "Open Work Insights",
 		todoPlaceholder: "Add a new to-do... (Enter)",
 		modalAddTitle: "What did you do?",
 		modalEditTitle: "Edit Daily Activity",
@@ -120,7 +130,8 @@ export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 		emptyStateDescNoNote: "Please select an active note to view or edit logs.",
 		emptyStateTitleNotDaily: "Not a daily note",
 		invalidTimeFormat: "Invalid time format. (e.g. 09:00)",
-		dashboardTitle: "Dashboard",
+		dashboardTitle: "Work Insights",
+
 		btnRefresh: "Refresh",
 		statTotalNotes: "Total Notes",
 		statStreak: "Current Streak",
@@ -163,12 +174,23 @@ export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 		alertCatNameEmpty: "Please enter a category name.",
 		alertCatLimitMax: "You cannot have more than 10 categories.",
 		alertCatNameExists: "This category name already exists.",
+		window7Days: "Last 7 Days",
+		window30Days: "Last 30 Days",
+		window90Days: "Last 90 Days",
+		windowAllTime: "All Time",
+		statAvgPerDay: "Daily Avg",
+		statTopCategory: "Top Category",
+		statTopCategoryPct: "%s% of recorded time",
+		categoryDistTitle: "Time Distribution by Category",
+		periodSummaryTitle: "Period Summary",
+		activityNotesTitle: "Recent Note Activities",
 	},
+
 	ko: {
 		ribbonOpenSidebar: "DailyWorkLog 열기",
-		ribbonOpenDashboard: "DailyWorkLog 대시보드 열기",
+		ribbonOpenDashboard: "DailyWorkLog 일과 인사이트 열기",
 		commandOpenSidebar: "사이드바 열기",
-		commandOpenDashboard: "대시보드 열기",
+		commandOpenDashboard: "일과 인사이트 열기",
 		todoPlaceholder: "새로운 할 일 추가... (Enter)",
 		modalAddTitle: "무엇을 했나요?",
 		modalEditTitle: "일과 수정",
@@ -196,7 +218,8 @@ export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 		emptyStateDescNoNote: "일과를 기록하고 조회하려면 활성화된 노트를 선택해 주세요.",
 		emptyStateTitleNotDaily: "날짜 노트가 아닙니다",
 		invalidTimeFormat: "시간 형식이 올바르지 않습니다. (예: 09:00)",
-		dashboardTitle: "대시보드",
+		dashboardTitle: "일과 인사이트",
+
 		btnRefresh: "새로고침",
 		statTotalNotes: "총 노트 수",
 		statStreak: "연속 작성일",
@@ -237,8 +260,18 @@ export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 		settingAddCategoryPlaceholder: "카테고리 이름 입력...",
 		btnAdd: "추가",
 		alertCatNameEmpty: "카테고리 이름을 입력해 주세요.",
-		alertCatLimitMax: "카테고리는 최대 10개까지만 추가할 수 있습니다.",
+		alertCatLimitMax: "카테고리는 최대 10개까지 등록할 수 있습니다.",
 		alertCatNameExists: "이미 존재하는 카테고리 이름입니다.",
+		window7Days: "최근 7일",
+		window30Days: "최근 30일",
+		window90Days: "최근 90일",
+		windowAllTime: "전체 기간",
+		statAvgPerDay: "일평균 기록",
+		statTopCategory: "최다 활동 카테고리",
+		statTopCategoryPct: "전체 기록 시간의 %s%",
+		categoryDistTitle: "카테고리별 기록 시간 분포",
+		periodSummaryTitle: "기간 요약",
+		activityNotesTitle: "최근 일간 노트 작업 내역",
 	},
 };
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSkeletonContent, formatDateBasename, formatDateFilename, parseDateFromBasename } from "./dailyNote";
+import { buildSkeletonContent, formatDateBasename, formatDateFilename, isInDailyNoteFolder, parseDateFromBasename } from "./dailyNote";
 
 describe("parseDateFromBasename", () => {
 	it("parses a valid YYYY-MM-DD basename", () => {
@@ -54,3 +54,26 @@ describe("buildSkeletonContent", () => {
 		expect(buildSkeletonContent("ko")).not.toContain("_이벤트");
 	});
 });
+
+describe("isInDailyNoteFolder", () => {
+	it("returns true for any path when folder setting is empty or whitespace", () => {
+		expect(isInDailyNoteFolder("2026-07-13.md", "")).toBe(true);
+		expect(isInDailyNoteFolder("Daily Notes/2026-07-13.md", "   ")).toBe(true);
+	});
+
+	it("returns true when file path is directly inside the configured folder", () => {
+		expect(isInDailyNoteFolder("Daily Notes/2026-07-13.md", "Daily Notes")).toBe(true);
+		expect(isInDailyNoteFolder("Daily Notes/2026-07-13.md", "Daily Notes/")).toBe(true);
+	});
+
+	it("returns true when file is inside a subfolder of the configured folder", () => {
+		expect(isInDailyNoteFolder("journals/2026/07/2026-07-13.md", "journals")).toBe(true);
+	});
+
+	it("returns false when file is outside the configured folder", () => {
+		expect(isInDailyNoteFolder("2026-07-13.md", "Daily Notes")).toBe(false);
+		expect(isInDailyNoteFolder("Other Folder/2026-07-13.md", "Daily Notes")).toBe(false);
+		expect(isInDailyNoteFolder("Daily Notes Extra/2026-07-13.md", "Daily Notes")).toBe(false);
+	});
+});
+

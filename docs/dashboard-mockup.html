@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Work Log — Dashboard View Mockup</title>
+  <title>Daily Work Log — Work Insights View Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     /* ═══════════════════════════════════════════════════
        Design System Variables (System Theme Adaptive)
@@ -517,12 +518,13 @@
         <span class="separator">&gt;</span>
         <span id="bcSub">메모</span>
         <span class="separator">&gt;</span>
-        <span style="font-weight: 600; color: var(--text-main);" id="bcTitle">Daily Work Log 대시보드</span>
+        <span style="font-weight: 600; color: var(--text-main);" id="bcTitle">Daily Work Log 일과 인사이트</span>
       </div>
       <div class="meta-controls">
         <select class="select-dropdown" id="selPeriod" onchange="changePeriod()">
-          <option value="30">Last 30 days</option>
-          <option value="90" selected>Last 90 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="0">All time</option>
         </select>
         <button class="control-btn" onclick="refreshData()" id="btnRefresh">
           <span>🔄</span> <span id="lblRefresh">Refresh</span>
@@ -535,8 +537,7 @@
 
     <!-- 2. Main Title Section -->
     <div class="dashboard-title-area">
-      <h1 class="dashboard-title" id="mainTitle">Daily Work Log</h1>
-      <div class="dashboard-subtitle" id="mainSub">Last scan - 04:45 AM · 42 files analyzed</div>
+      <h1 class="dashboard-title" id="mainTitle">일과 인사이트</h1>
     </div>
 
     <!-- 3. 4-Column Metric Cards -->
@@ -545,16 +546,15 @@
       <!-- Card 1: Total Notes -->
       <div class="metric-card">
         <div class="card-top-row">
-          <span class="card-label" id="lblCardNotes">Total Daily Notes</span>
-          <span class="card-icon">📄</span>
+          <span class="card-label" id="lblCardNotes">Total Notes</span>
+          <span class="card-change-badge" style="background-color: #d0e1fd; color: #0f172a; margin-top:0;">1일</span>
         </div>
         <div class="card-value-row">
-          <span class="card-value" id="valCardNotes">42</span>
-          <span class="card-value-suffix" id="valCardNotesSuffix">files</span>
+          <span class="card-value" id="valCardNotes">15</span>
         </div>
-        <span class="card-change-badge">+5 in 7 days</span>
-        <span class="card-footer" id="footCardNotes">12 months continuous usage</span>
+        <span class="card-footer" id="footCardNotes">연속 작성일: 1일</span>
       </div>
+
 
       <!-- Card 2: Streak -->
       <div class="metric-card">
@@ -750,25 +750,24 @@
     const STRINGS = {
       en: {
         bcSub: "Memo",
-        bcTitle: "Daily Work Log Dashboard",
+        bcTitle: "Daily Work Log Work Insights",
         refresh: "Refresh",
         themeLight: "Light Mode",
         themeDark: "Dark Mode",
-        mainTitle: "Daily Work Log",
-        mainSub: "Last scan - 04:45 AM · 42 files analyzed",
+        mainTitle: "Work Insights",
         
-        lblCardNotes: "Total Daily Notes",
-        valCardNotesSuffix: "files",
+        lblCardNotes: "Total Notes",
+        valCardNotesSuffix: "",
         lblCardStreak: "Current Streak",
         valCardStreakSuffix: "days",
         lblCardTodo: "To-Do Rate",
         lblCardHours: "Event Hours",
         
-        lblDistTitle: "Category Distribution",
+        lblDistTitle: "Time Distribution by Category",
         lblDistSub: "By total hours recorded in events",
         
-        lblPanelLeft: "Daily Breakdown & History",
-        lblPanelRight: "Vault Info",
+        lblPanelLeft: "Recent Note Activities",
+        lblPanelRight: "Period Summary",
         
         lblInfoName: "Vault Name",
         lblInfoInit: "Initialized",
@@ -784,25 +783,24 @@
       },
       ko: {
         bcSub: "메모",
-        bcTitle: "Daily Work Log 대시보드",
+        bcTitle: "Daily Work Log 일과 인사이트",
         refresh: "새로고침",
         themeLight: "라이트 모드",
         themeDark: "다크 모드",
-        mainTitle: "Daily Work Log",
-        mainSub: "마지막 스캔 - 오전 04:45 · 42개 파일 분석됨",
+        mainTitle: "일과 인사이트",
         
-        lblCardNotes: "총 일일 일지 수",
-        valCardNotesSuffix: "개",
-        lblCardStreak: "연속 작성일 (Streak)",
-        valCardStreakSuffix: "일 연속",
-        lblCardTodo: "할 일 완료율",
-        lblCardHours: "이벤트 기록 시간",
+        lblCardNotes: "총 노트 수",
+        valCardNotesSuffix: "",
+        lblCardStreak: "연속 작성일",
+        valCardStreakSuffix: "일",
+        lblCardTodo: "To-Do 달성률",
+        lblCardHours: "총 기록 시간",
         
-        lblDistTitle: "카테고리 누적 시간 비율",
+        lblDistTitle: "카테고리별 기록 시간 분포",
         lblDistSub: "이벤트에 기록된 총 누적 시간 기준",
         
-        lblPanelLeft: "최근 작성된 일일 기록 현황",
-        lblPanelRight: "볼트 정보",
+        lblPanelLeft: "최근 일간 노트 작업 내역",
+        lblPanelRight: "기간 요약",
         
         lblInfoName: "볼트 이름",
         lblInfoInit: "사용 기간",
@@ -817,6 +815,7 @@
         loading: "새로고침 중..."
       }
     };
+
 
     let currentLang = 'ko';
     let strings = STRINGS.ko;
@@ -891,9 +890,9 @@
       document.getElementById('lblTheme').textContent = isLight ? strings.themeDark : strings.themeLight;
 
       document.getElementById('mainTitle').textContent = strings.mainTitle;
-      document.getElementById('mainSub').textContent = strings.mainSub;
 
       document.getElementById('lblCardNotes').textContent = strings.lblCardNotes;
+
       document.getElementById('valCardNotesSuffix').textContent = strings.valCardNotesSuffix;
       document.getElementById('lblCardStreak').textContent = strings.lblCardStreak;
       document.getElementById('valCardStreakSuffix').textContent = strings.valCardStreakSuffix;
@@ -1004,13 +1003,12 @@
       // Simulate period selection change
       const period = document.getElementById('selPeriod').value;
       if (period === '30') {
-        document.getElementById('valCardNotes').textContent = "14";
-        document.getElementById('mainSub').textContent = currentLang === 'ko' ? "마지막 스캔 - 오전 04:45 · 최근 30일 분석" : "Last scan - 04:45 AM · Recent 30 days scan";
+        document.getElementById('valCardNotes').textContent = "15";
       } else {
         document.getElementById('valCardNotes').textContent = "42";
-        document.getElementById('mainSub').textContent = currentLang === 'ko' ? "마지막 스캔 - 오전 04:45 · 42개 파일 분석됨" : "Last scan - 04:45 AM · 42 files analyzed";
       }
     }
+
 
     function copyPath() {
       alert("경로가 클립보드에 복사되었습니다.");
