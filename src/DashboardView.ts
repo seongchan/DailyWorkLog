@@ -1,4 +1,4 @@
-import { ItemView, TFile, WorkspaceLeaf } from "obsidian";
+import { ItemView, TFile, Vault, type TAbstractFile, type WorkspaceLeaf } from "obsidian";
 import type DailyWorkLogPlugin from "./main";
 import { parseDailyNote, type MarkerLanguage, type ParsedDailyNote } from "./parser";
 import { formatDateBasename, isInDailyNoteFolder, parseDateFromBasename } from "./dailyNote";
@@ -111,12 +111,24 @@ export class DashboardView extends ItemView {
 	private collectDailyNoteFiles(): DailyNoteFile[] {
 		const result: DailyNoteFile[] = [];
 		const folderSetting = this.plugin.settings.dailyNoteFolder;
-		for (const file of this.app.vault.getFiles()) {
-			if (file.extension !== "md") continue;
-			if (!isInDailyNoteFolder(file.path, folderSetting)) continue;
+		const normalizedFolder = folderSetting.trim().replace(/^\/+|\/+$/g, "");
 
+		const consider = (file: TAbstractFile) => {
+			if (!(file instanceof TFile) || file.extension !== "md") return;
+			if (!isInDailyNoteFolder(file.path, folderSetting)) return;
 			const date = parseDateFromBasename(file.basename);
 			if (date) result.push({ file, date });
+		};
+
+		// Scoped to the configured folder when one is set, so large vaults
+		// aren't walked in full just to find daily notes in a subfolder. Falls
+		// back to a vault-wide scan when unset (fresh install default) or when
+		// the configured folder doesn't currently exist.
+		const scopedFolder = normalizedFolder ? this.app.vault.getFolderByPath(normalizedFolder) : null;
+		if (scopedFolder) {
+			Vault.recurseChildren(scopedFolder, consider);
+		} else {
+			this.app.vault.getFiles().forEach(consider);
 		}
 		return result;
 	}
@@ -216,8 +228,7 @@ export class DashboardView extends ItemView {
 		if (badgeText) {
 			const badge = topRow.createDiv({ cls: "dwl-kpi-badge", text: badgeText });
 			if (badgeBgColor) {
-				badge.style.backgroundColor = badgeBgColor;
-				badge.style.color = "#0f172a";
+				badge.setCssStyles({ backgroundColor: badgeBgColor, color: "#0f172a" });
 			}
 		}
 
@@ -240,8 +251,7 @@ export class DashboardView extends ItemView {
 		for (const item of stats.categoryBreakdown) {
 			if (item.percentage <= 0) continue;
 			const seg = bar.createDiv({ cls: "dwl-dashboard-progress-segment" });
-			seg.style.width = `${item.percentage}%`;
-			seg.style.backgroundColor = item.color;
+			seg.setCssStyles({ width: `${item.percentage}%`, backgroundColor: item.color });
 			seg.setAttribute("title", `${item.displayName}: ${formatMinutes(item.minutes)} (${item.percentage}%)`);
 		}
 
@@ -252,7 +262,7 @@ export class DashboardView extends ItemView {
 			const labelRow = itemEl.createDiv({ cls: "dwl-legend-label-row" });
 
 			const dot = labelRow.createSpan({ cls: "dwl-legend-dot" });
-			dot.style.backgroundColor = item.color;
+			dot.setCssStyles({ backgroundColor: item.color });
 			labelRow.createSpan({ cls: "dwl-legend-name", text: item.displayName });
 
 			const valRow = itemEl.createDiv({ cls: "dwl-legend-val-row" });
@@ -298,8 +308,10 @@ export class DashboardView extends ItemView {
 					const catObj = this.plugin.settings.categories.find((c) => c.displayName === summary.topCategory);
 					const badge = mid.createSpan({ cls: "dwl-activity-cat-badge", text: summary.topCategory });
 					if (catObj) {
-						badge.style.backgroundColor = catObj.color;
-						badge.style.color = getTextColorForBackground(catObj.color);
+						badge.setCssStyles({
+							backgroundColor: catObj.color,
+							color: getTextColorForBackground(catObj.color),
+						});
 					}
 				}
 

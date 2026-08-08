@@ -17,7 +17,6 @@
 - **서로 독립적인 두 가지 테마**: 사이드바 전용 라이트/다크 설정(Obsidian 전체 테마와 별개이며, 팝업은 항상 시스템 테마를 따름)과, Obsidian 테마를 그대로 따르는 일과 인사이트.
 - **일과 인사이트**: 볼트 요약 및 통계 — 설정된 폴더 내 노트 수, 연속 작성일(스트릭), 조회 기간 필터(7일/30일/90일/전체), To-Do 달성률, 총 기록 시간 및 일평균 기록, 카테고리별 기록 시간 비중 시각화(Multi-Segment Progress Bar) 및 최근 일과 내역.
 
-
 ## 일일 노트 형식
 
 일일 노트 파일명은 `YYYY-MM-DD.md` 형식이어야 합니다. 플러그인으로 새 노트를 생성하면 다음과 같은 형태로 만들어집니다.
@@ -60,9 +59,11 @@ npm run build   # dist/main.js, dist/manifest.json, dist/styles.css 생성
 개발 중에는 `npm run dev`를 사용하세요 — 코드가 바뀔 때마다 자동으로 다시 빌드됩니다 (esbuild watch 모드).
 
 > #### **[!TIP]**  
+>
 > **DayTime Tracker에서 넘어오시나요?** 그 플러그인은 데이터를 본문이 아니라 `timeline-logs` / `timeline-todos`라는 YAML frontmatter 프로퍼티에 저장합니다. `scripts/migrate-from-daytimetracker.mjs`로 기존 일일 노트를 이 플러그인 형식으로 변환할 수 있습니다.
 >
 > 이 스크립트는 소스 저장소에만 있고 릴리스 다운로드에는 포함되어 있지 않습니다(릴리스에는 `main.js`/`manifest.json`/`styles.css`만 들어있음) — 먼저 이 저장소를 clone하고 `npm install`을 실행해야 합니다:
+>
 > ```bash
 > git clone https://github.com/seongchan/DailyWorkLog.git
 > cd DailyWorkLog
@@ -70,6 +71,7 @@ npm run build   # dist/main.js, dist/manifest.json, dist/styles.css 생성
 > node scripts/migrate-from-daytimetracker.mjs <볼트 경로>            # 드라이런 — 아무것도 안 쓰고 미리보기만
 > node scripts/migrate-from-daytimetracker.mjs <볼트 경로> --write    # 실제로 파일 수정
 > ```
+>
 > 항상 드라이런을 먼저 돌려보고, `--write`를 쓰기 전에 볼트를 백업하세요 — 노트를 그 자리에서 덮어쓰며 되돌릴 방법이 없습니다. 정확히 무엇이 변환되고 무엇이 안 되는지는 스크립트 상단 주석을 참고하세요.
 
 ## 사용 방법
@@ -119,6 +121,11 @@ npm run build    # 타입 체크(tsc) + 프로덕션 빌드
 
 ## 변경 이력
 
+### 0.4.1 (2026-08-08)
+
+- **일과 인사이트 폴더 스캔 범위 축소**: 통계 대상 노트를 수집할 때, 폴더가 지정된 경우 볼트 전체가 아니라 지정된 `dailyNoteFolder` 폴더(하위 폴더 포함)만 탐색하도록 개선했습니다. 큰 볼트에서 폴더를 좁게 지정한 경우 성능이 향상됩니다. 폴더를 지정하지 않은 경우(설치 직후 기본값)는 기존처럼 볼트 전체에서 찾습니다.
+- **미사용 의존성 정리**: 실제로 사용되지 않던 `js-yaml` 패키지를 제거했습니다.
+
 ### 0.4.0 (2026-08-07)
 
 - **일과 인사이트(Work Insights) 전면 개편**:
@@ -130,7 +137,6 @@ npm run build    # 타입 체크(tsc) + 프로덕션 빌드
   - **명칭 변경**: 기존 '대시보드' 명칭을 기능의 목적에 맞는 '일과 인사이트'로 변경했습니다.
 
 ### 0.3.1 (2026-08-07)
-
 
 - **DayTime Tracker 마이그레이션 스크립트 추가**: `scripts/migrate-from-daytimetracker.mjs` — DayTime Tracker가 frontmatter 프로퍼티(`timeline-logs`/`timeline-todos`)에 저장한 기존 노트를 이 플러그인의 본문 텍스트 형식으로 변환합니다. 릴리스 배포 파일에는 포함되지 않고 소스 저장소를 clone해야 사용 가능합니다 (자세한 내용은 위 "설치 방법"의 팁 참고).
 

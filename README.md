@@ -119,6 +119,11 @@ npm run build   # type-check (tsc) + production build
 
 ## Changelog
 
+### 0.4.1 (2026-08-08)
+
+- **Narrowed Work Insights folder scan**: when collecting notes for statistics, the scan is now limited to the configured `dailyNoteFolder` (including subfolders) instead of walking the entire vault. Improves performance in large vaults with a narrow folder set. Falls back to a vault-wide scan when no folder is configured (the fresh-install default).
+- **Removed unused dependency**: dropped the `js-yaml` package, which was never actually imported anywhere in the codebase.
+
 ### 0.4.0 (2026-08-07)
 
 - **Redesigned Work Insights view**:
