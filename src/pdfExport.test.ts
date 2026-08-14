@@ -38,13 +38,14 @@ describe("buildExportHtml", () => {
 		expect(html).toContain("Uncategorized");
 	});
 
-	it("escapes HTML in To-Do text instead of injecting it raw", () => {
+	it("strips HTML tags from To-Do text instead of injecting them raw", () => {
 		const html = buildExportHtml({
 			...baseCtx,
 			todos: [{ line: 0, lineCount: 1, checked: false, text: "<script>alert(1)</script>" }],
 		});
 		expect(html).not.toContain("<script>alert(1)</script>");
-		expect(html).toContain("&lt;script&gt;");
+		expect(html).not.toContain("<script>");
+		expect(html).toContain("<span>alert(1)</span>");
 	});
 
 	it("omits the to-dos block markup entirely when there are no todos", () => {

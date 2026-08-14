@@ -5,7 +5,7 @@
  * result to the vault and opening it.
  */
 import { getTextColorForBackground } from "./components/colorUtils";
-import { timeToMinutes, type TimelineItem, type TodoItem } from "./parser";
+import { stripHtml, timeToMinutes, type TimelineItem, type TodoItem } from "./parser";
 import type { CustomCategory, SidebarTheme } from "./settings";
 
 export interface ExportContext {
@@ -108,7 +108,7 @@ export function buildExportHtml(ctx: ExportContext): string {
 					${ctx.todos
 						.map(
 							(item) =>
-								`<li class="${item.checked ? "is-checked" : ""}"><input type="checkbox" disabled ${item.checked ? "checked" : ""}/> <span>${escapeHtml(item.text)}</span></li>`
+								`<li class="${item.checked ? "is-checked" : ""}"><input type="checkbox" disabled ${item.checked ? "checked" : ""}/> <span>${escapeHtml(stripHtml(item.text))}</span></li>`
 						)
 						.join("")}
 				</ul>

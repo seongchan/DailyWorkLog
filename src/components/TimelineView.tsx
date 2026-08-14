@@ -13,6 +13,7 @@ import {
 	removeLineRangeAt,
 	replaceLineAt,
 	replaceLineRangeAt,
+	stripHtml,
 	timeToMinutes,
 	timelineRangeMatches,
 	todoRangeMatches,
@@ -55,7 +56,7 @@ function buildTimelineLine(values: EventEntryValues): string {
  * handling, silently running the note text into the to-do label.
  */
 function todoFirstLine(item: TodoItem): string {
-	return item.text.split("\n")[0];
+	return stripHtml(item.text.split("\n")[0]);
 }
 
 function formatDateHeader(date: Date, language: MarkerLanguage): string {
@@ -444,7 +445,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 												key={index}
 												className="dwl-grid-block"
 												style={{ left: `${leftPercent}%`, width: `${widthPercent}%`, backgroundColor: bgColor, color: textColor }}
-												title={`${item.start} ~ ${item.end} | ${label}${item.description ? `\n${item.description}` : ""}`}
+												title={`${item.start} ~ ${item.end} | ${label}${item.description ? `\n${stripHtml(item.description)}` : ""}`}
 												onClick={(evt) => {
 													evt.stopPropagation();
 													openEventModal(item, item.start, item.end);

@@ -474,3 +474,23 @@ export function timelineDurationMinutes(item: Pick<TimelineItem, "start" | "end"
 	const endMinutes = timeToMinutes(item.end);
 	return Math.max(endMinutes - startMinutes + (endMinutes <= startMinutes ? MINUTES_PER_DAY : 0), 0);
 }
+
+const HTML_ENTITIES: Record<string, string> = {
+	"&nbsp;": " ",
+	"&amp;": "&",
+	"&lt;": "<",
+	"&gt;": ">",
+	"&quot;": '"',
+	"&#39;": "'",
+};
+
+/**
+ * Strips HTML tags (e.g. from notes edited with a rich-text/formatting
+ * plugin like Obsidian's Editing Toolbar) for **display purposes only** —
+ * callers must never write the stripped result back to the note file, only
+ * use it where raw note text is rendered in the sidebar/export UI. The
+ * source of truth in the file keeps its original HTML untouched.
+ */
+export function stripHtml(text: string): string {
+	return text.replace(/<[^>]*>/g, "").replace(/&[a-zA-Z]+;|&#\d+;/g, (entity) => HTML_ENTITIES[entity] ?? entity);
+}

@@ -11,6 +11,7 @@ import {
 	replaceLineRangeAt,
 	splitBlocksByMarker,
 	stripFrontmatter,
+	stripHtml,
 	timelineDurationMinutes,
 	timelineLineMatches,
 	timelineRangeMatches,
@@ -589,5 +590,38 @@ describe("TIME_VALUE_REGEX", () => {
 		expect(TIME_VALUE_REGEX.test("9:0")).toBe(false);
 		expect(TIME_VALUE_REGEX.test("9-00")).toBe(false);
 		expect(TIME_VALUE_REGEX.test("")).toBe(false);
+	});
+});
+
+describe("stripHtml", () => {
+	it("removes a single tag", () => {
+		expect(stripHtml("<b>bold</b>")).toBe("bold");
+	});
+
+	it("removes a tag with attributes", () => {
+		expect(stripHtml('<font color="red">warning</font>')).toBe("warning");
+	});
+
+	it("removes nested tags", () => {
+		expect(stripHtml("<div><span><b>text</b></span></div>")).toBe("text");
+	});
+
+	it("removes a self-closing tag", () => {
+		expect(stripHtml("line one<br/>line two")).toBe("line oneline two");
+	});
+
+	it("decodes common HTML entities", () => {
+		expect(stripHtml("a&nbsp;b")).toBe("a b");
+		expect(stripHtml("a &amp; b")).toBe("a & b");
+		expect(stripHtml("&lt;not a tag&gt;")).toBe("<not a tag>");
+		expect(stripHtml("&quot;quoted&quot; &#39;text&#39;")).toBe('"quoted" \'text\'');
+	});
+
+	it("leaves plain text without tags or entities untouched", () => {
+		expect(stripHtml("plain text, no markup")).toBe("plain text, no markup");
+	});
+
+	it("returns an empty string for an all-tags input", () => {
+		expect(stripHtml("<div></div>")).toBe("");
 	});
 });
