@@ -45,6 +45,7 @@ export type UIStringKey =
 	| "emptyStateDescNoNote"
 	| "emptyStateTitleNotDaily"
 	| "invalidTimeFormat"
+	| "multilineContinuationError"
 	| "dashboardTitle"
 	| "btnRefresh"
 	| "statTotalNotes"
@@ -130,6 +131,8 @@ export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 		emptyStateDescNoNote: "Please select an active note to view or edit logs.",
 		emptyStateTitleNotDaily: "Not a daily note",
 		invalidTimeFormat: "Invalid time format. (e.g. 09:00)",
+		multilineContinuationError:
+			"Line 2 onward can't start like a time range (e.g. 09:00 - 10:00) or a checkbox (e.g. - [ ]) — please rephrase.",
 		dashboardTitle: "Work Insights",
 
 		btnRefresh: "Refresh",
@@ -218,6 +221,8 @@ export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 		emptyStateDescNoNote: "일과를 기록하고 조회하려면 활성화된 노트를 선택해 주세요.",
 		emptyStateTitleNotDaily: "날짜 노트가 아닙니다",
 		invalidTimeFormat: "시간 형식이 올바르지 않습니다. (예: 09:00)",
+		multilineContinuationError:
+			"2번째 줄부터는 시간 범위(예: 09:00 - 10:00)나 체크박스(예: - [ ]) 형식으로 시작할 수 없습니다. 문구를 조금 바꿔주세요.",
 		dashboardTitle: "일과 인사이트",
 
 		btnRefresh: "새로고침",

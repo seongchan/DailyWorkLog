@@ -10,11 +10,12 @@ import {
 	appendLineToBlock,
 	minutesToTime,
 	parseDailyNote,
-	removeLineAt,
+	removeLineRangeAt,
 	replaceLineAt,
+	replaceLineRangeAt,
 	timeToMinutes,
-	timelineLineMatches,
-	todoLineMatches,
+	timelineRangeMatches,
+	todoRangeMatches,
 	type MarkerLanguage,
 	type TimelineItem,
 	type TodoItem,
@@ -44,6 +45,17 @@ const CELLS_PER_HOUR = 60 / CELL_MINUTES;
 function buildTimelineLine(values: EventEntryValues): string {
 	const categoryPart = values.category ? `[${values.category}] ` : "";
 	return `- ${values.start} - ${values.end} ${categoryPart}${values.description}`.trimEnd();
+}
+
+/**
+ * A To-Do's `text` may include absorbed continuation lines (AGENTS.md 1.4.2),
+ * but the sidebar has no UI for them yet (imsi.md §9.1) — only the first
+ * line is ever shown. Without this, the raw multi-line string still renders,
+ * just with its `\n`s collapsed into spaces by normal HTML whitespace
+ * handling, silently running the note text into the to-do label.
+ */
+function todoFirstLine(item: TodoItem): string {
+	return item.text.split("\n")[0];
 }
 
 function formatDateHeader(date: Date, language: MarkerLanguage): string {
@@ -124,12 +136,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 		if (!activeFile) return;
 		const content = await plugin.app.vault.read(activeFile);
 		const lines = content.split("\n");
-		const targetLine = lines[item.line];
-		if (targetLine === undefined || !todoLineMatches(targetLine, item)) {
+		if (!todoRangeMatches(lines, item)) {
 			await reloadFile(activeFile);
 			return;
 		}
-		const newLine = targetLine.replace(/\[[ xX]\]/, checked ? "[x]" : "[ ]");
+		const newLine = lines[item.line].replace(/\[[ xX]\]/, checked ? "[x]" : "[ ]");
 		await plugin.writeFile(activeFile, replaceLineAt(content, item.line, newLine));
 		await reloadFile(activeFile);
 	};
@@ -145,12 +156,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 		if (!activeFile) return;
 		const content = await plugin.app.vault.read(activeFile);
 		const lines = content.split("\n");
-		const targetLine = lines[item.line];
-		if (targetLine === undefined || !todoLineMatches(targetLine, item)) {
+		if (!todoRangeMatches(lines, item)) {
 			await reloadFile(activeFile);
 			return;
 		}
-		await plugin.writeFile(activeFile, removeLineAt(content, item.line));
+		await plugin.writeFile(activeFile, removeLineRangeAt(content, item.line, item.lineCount));
 		await reloadFile(activeFile);
 	};
 
@@ -158,7 +168,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 		new ConfirmDeleteModal(
 			plugin.app,
 			t("confirmTitle", language),
-			t("confirmDeleteTask", language).replace("%s", item.text),
+			t("confirmDeleteTask", language).replace("%s", todoFirstLine(item)),
 			t("btnCancel", language),
 			t("confirmOk", language),
 			() => void deleteTodo(item)
@@ -178,12 +188,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 		if (!activeFile) return;
 		const content = await plugin.app.vault.read(activeFile);
 		const lines = content.split("\n");
-		const targetLine = lines[item.line];
-		if (targetLine === undefined || !timelineLineMatches(targetLine, item)) {
+		if (!timelineRangeMatches(lines, item)) {
 			await reloadFile(activeFile);
 			return;
 		}
-		await plugin.writeFile(activeFile, replaceLineAt(content, item.line, buildTimelineLine(values)));
+		await plugin.writeFile(activeFile, replaceLineRangeAt(content, item.line, item.lineCount, buildTimelineLine(values)));
 		await reloadFile(activeFile);
 	};
 
@@ -191,12 +200,11 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 		if (!activeFile) return;
 		const content = await plugin.app.vault.read(activeFile);
 		const lines = content.split("\n");
-		const targetLine = lines[item.line];
-		if (targetLine === undefined || !timelineLineMatches(targetLine, item)) {
+		if (!timelineRangeMatches(lines, item)) {
 			await reloadFile(activeFile);
 			return;
 		}
-		await plugin.writeFile(activeFile, removeLineAt(content, item.line));
+		await plugin.writeFile(activeFile, removeLineRangeAt(content, item.line, item.lineCount));
 		await reloadFile(activeFile);
 	};
 
@@ -504,7 +512,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 											checked={item.checked}
 											onChange={(evt) => void toggleTodo(item, evt.target.checked)}
 										/>
-										<span className={`dwl-todo-text${item.checked ? " dwl-todo-text-checked" : ""}`}>{item.text}</span>
+										<span className={`dwl-todo-text${item.checked ? " dwl-todo-text-checked" : ""}`}>{todoFirstLine(item)}</span>
 										<button type="button" className="dwl-todo-delete-btn" onClick={() => confirmDeleteTodo(item)}>
 											✕
 										</button>

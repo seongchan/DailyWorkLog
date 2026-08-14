@@ -3,7 +3,7 @@ import * as React from "react";
 import { useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { t } from "../i18n";
-import { TIME_VALUE_REGEX, type MarkerLanguage, type TimelineItem } from "../parser";
+import { isTopLevelOrMarker, TIME_VALUE_REGEX, type MarkerLanguage, type TimelineItem } from "../parser";
 import type { CustomCategory } from "../settings";
 
 export interface EventEntryValues {
@@ -45,7 +45,20 @@ function TimelineModalContent({
 			new Notice(t("invalidTimeFormat", language));
 			return;
 		}
-		onSave({ start, end, category, description: description.trim() });
+		// Cap consecutive blank lines at one (3+ newlines in a row collapse to
+		// exactly 2) — a run of several blank lines carries no extra meaning
+		// over a single paragraph break, just extra stored lineCount.
+		const trimmedDescription = description.trim().replace(/\n{3,}/g, "\n\n");
+		// A continuation line shaped like a real Timeline/To-Do line would be
+		// misread as a new top-level item on the next parse instead of staying
+		// part of this description (AGENTS.md 1.4.2) — reject rather than
+		// silently losing it.
+		const continuationLines = trimmedDescription.split("\n").slice(1);
+		if (continuationLines.some((line) => isTopLevelOrMarker(line))) {
+			new Notice(t("multilineContinuationError", language));
+			return;
+		}
+		onSave({ start, end, category, description: trimmedDescription });
 	};
 
 	return (

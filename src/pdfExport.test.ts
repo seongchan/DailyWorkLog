@@ -24,7 +24,7 @@ describe("buildExportHtml", () => {
 	it("renders a labeled block for a timeline item with a matching category color", () => {
 		const html = buildExportHtml({
 			...baseCtx,
-			timeline: [{ line: 0, start: "09:00", end: "10:00", category: "Work", description: "meeting" }],
+			timeline: [{ line: 0, lineCount: 1, start: "09:00", end: "10:00", category: "Work", description: "meeting" }],
 		});
 		expect(html).toContain("#d0e1fd");
 		expect(html).toContain("Work");
@@ -33,7 +33,7 @@ describe("buildExportHtml", () => {
 	it("falls back to the uncategorized label when a timeline item has no category", () => {
 		const html = buildExportHtml({
 			...baseCtx,
-			timeline: [{ line: 0, start: "09:00", end: "10:00", description: "meeting" }],
+			timeline: [{ line: 0, lineCount: 1, start: "09:00", end: "10:00", description: "meeting" }],
 		});
 		expect(html).toContain("Uncategorized");
 	});
@@ -41,7 +41,7 @@ describe("buildExportHtml", () => {
 	it("escapes HTML in To-Do text instead of injecting it raw", () => {
 		const html = buildExportHtml({
 			...baseCtx,
-			todos: [{ line: 0, checked: false, text: "<script>alert(1)</script>" }],
+			todos: [{ line: 0, lineCount: 1, checked: false, text: "<script>alert(1)</script>" }],
 		});
 		expect(html).not.toContain("<script>alert(1)</script>");
 		expect(html).toContain("&lt;script&gt;");

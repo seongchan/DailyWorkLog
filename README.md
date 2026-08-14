@@ -101,6 +101,28 @@ You don't need the sidebar at all — the sidebar is just a UI on top of plain m
 - `- [ ] text` / `- [x] text` for a To-Do, same as a normal Obsidian checkbox.
 - Save the file (or just keep typing — Obsidian autosaves) and the sidebar/Work Insights pick up the change automatically.
 
+#### Multi-line notes
+
+Any line right after an Event or To-Do line that doesn't itself look like a *new* Event/To-Do/heading line is treated as a continuation of the one above it — handy for jotting extra detail without cluttering the single description line:
+
+```markdown
+# Event
+
+- 9:00 - 10:30 [Work] Team meeting
+Discussed Q3 roadmap and confirmed next steps with design.
+Follow-up scheduled for next week.
+
+# ToDo
+
+- [ ] Ship the release
+Rollback plan is documented in the runbook.
+```
+
+- For **Events**, the sidebar already supports this — press Enter in the description field of the add/edit popup and the extra lines are saved and shown right there when you reopen it.
+- For **To-Dos**, the sidebar's quick-add field is single-line only for now, but the note format supports it — add the extra line(s) by editing the note directly, right after the `- [ ]`/`- [x]` line. They're preserved (and can be deleted together with the to-do) even though the sidebar doesn't show or edit them yet.
+- A continuation line can't itself start like a new time range (`09:00 - 10:00 ...`) or a checkbox (`- [ ] ...`) — it would otherwise be misread as a separate new item the next time the note is parsed. The sidebar blocks saving a description that would do this; if you're editing the note directly, just avoid starting a note line that way.
+- A single blank line stays part of the item as a paragraph break, but **two or more blank lines in a row end it right there** — the rest is left in the file untouched, just no longer part of that item, so it stops showing in the sidebar and won't be affected by editing that item. Saving from the sidebar automatically collapses 3+ blank lines down to 1.
+
 
 ## Settings
 
@@ -118,6 +140,12 @@ npm run build   # type-check (tsc) + production build
 ```
 
 ## Changelog
+
+### 0.4.2 (2026-08-14)
+
+- **Fixed a multi-line Event description bug**: typing multiple lines (pressing Enter) into an Event's description saved correctly to the file, but reopening that event in the sidebar showed only the first line — the rest looked lost even though it was still sitting in the file. Multi-line content is now preserved and shown in full when reopened.
+- **Added continuation-line ("note") support**: any line right after an Event or To-Do line that doesn't itself look like a new item is now recognized as a note attached to the one above it (see "Multi-line notes" above for details). Events support this directly in the sidebar; To-Dos don't have a dedicated input UI for it yet, but notes written directly into the file are recognized and preserved.
+- Saving a note that would collide with a real Event/To-Do shape is now blocked with a clear message, and runs of 3+ blank lines are automatically trimmed to one (see "Multi-line notes" above for the full rules).
 
 ### 0.4.1 (2026-08-08)
 

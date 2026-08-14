@@ -6,6 +6,8 @@
 
 export interface TimelineItem {
 	line: number;
+	/** Number of physical lines this item occupies, including any absorbed continuation lines (AGENTS.md 1.4.2). Always >= 1. */
+	lineCount: number;
 	start: string;
 	end: string;
 	/** Category display name, verbatim as stored in the body (AGENTS.md 1.4.1). `undefined` = uncategorized (legacy line, or user never set one). */
@@ -15,6 +17,8 @@ export interface TimelineItem {
 
 export interface TodoItem {
 	line: number;
+	/** Number of physical lines this item occupies, including any absorbed continuation lines (AGENTS.md 1.4.2). Always >= 1. */
+	lineCount: number;
 	checked: boolean;
 	text: string;
 }
@@ -145,6 +149,23 @@ function matchMarker(line: string): BlockType | null {
 }
 
 /**
+ * True when `line` is a top-level line of EITHER block type, or a block
+ * marker — i.e. anything that must never be silently absorbed as a
+ * continuation/note line of a preceding Timeline or To-Do item (AGENTS.md
+ * 1.4.2). Checking both regexes (not just the caller's own) is required:
+ * without it, a stray checkbox line inside the Timeline block (or a
+ * time-range line inside the To-Do block — most commonly via the legacy,
+ * marker-less fallback where both blocks share one line range) would get
+ * silently swallowed into the wrong item's text instead of staying its own
+ * item. Exported so `TimelineModal` can reject a description whose
+ * continuation lines would misparse on the next read, instead of silently
+ * losing them.
+ */
+export function isTopLevelOrMarker(line: string): boolean {
+	return TIME_RANGE_REGEX.test(line) || CHECKBOX_REGEX.test(line) || matchMarker(line) !== null;
+}
+
+/**
  * Boundary computation per AGENTS.md 1.3:
  * 1. Record only the first occurrence of each marker label.
  * 2. Sort those (at most 3) positions by line number.
@@ -188,34 +209,94 @@ function linesInRange(lines: string[], range: LineRange): { text: string; line: 
 	return result;
 }
 
+/**
+ * A line that matches neither block's top-level regex nor a marker (AGENTS.md
+ * 1.4.2) is a continuation of the item currently being built — it's absorbed
+ * verbatim (raw text, no trim) so the item's stored text round-trips exactly
+ * back to the original file on the next save. Two stop conditions end the
+ * run and clear `current`, so anything from that point on is orphaned rather
+ * than glued onto a now-unrelated (or no-longer-relevant) item:
+ * - `isTopLevelOrMarker` (a line belonging to the OTHER block type, or a
+ *   marker) — matters most for the legacy (marker-less) fallback, where
+ *   Timeline and To-Do items are interleaved in one shared line range.
+ * - A SECOND consecutive blank line. One blank line is absorbed as a
+ *   meaningful paragraph break; two or more in a row reads as "unrelated
+ *   content follows" (most commonly a hand-edited file, since the modal's
+ *   own save path already collapses runs of 3+ typed newlines down to one
+ *   blank line before it ever reaches the file — see `TimelineModal`). The
+ *   orphaned tail is left in the file untouched, never deleted — the point
+ *   is only that it stops being treated as part of THIS item, so re-editing
+ *   and re-saving the item (range-bounded by `lineCount`) can never
+ *   overwrite it.
+ */
 export function parseTimeline(lines: string[], range: LineRange): TimelineItem[] {
 	const items: TimelineItem[] = [];
+	let current: TimelineItem | null = null;
+	let previousWasBlank = false;
 	for (const { text, line } of linesInRange(lines, range)) {
 		const match = TIME_RANGE_REGEX.exec(text);
 		if (match) {
-			items.push({
+			current = {
 				line,
+				lineCount: 1,
 				start: match[1],
 				end: match[2],
 				category: match[3] ? match[3] : undefined,
 				description: match[4].trim(),
-			});
+			};
+			items.push(current);
+			previousWasBlank = false;
+			continue;
 		}
+		const isBlank = text.trim() === "";
+		if (isTopLevelOrMarker(text) || (isBlank && previousWasBlank)) {
+			current = null;
+			previousWasBlank = false;
+			continue;
+		}
+		if (current) {
+			current.description += `\n${text}`;
+			current.lineCount++;
+		}
+		previousWasBlank = isBlank;
+	}
+	for (const item of items) {
+		item.description = item.description.trimEnd();
 	}
 	return items;
 }
 
 export function parseTodo(lines: string[], range: LineRange): TodoItem[] {
 	const items: TodoItem[] = [];
+	let current: TodoItem | null = null;
+	let previousWasBlank = false;
 	for (const { text, line } of linesInRange(lines, range)) {
 		const match = CHECKBOX_REGEX.exec(text);
 		if (match) {
-			items.push({
+			current = {
 				line,
+				lineCount: 1,
 				checked: match[1].toLowerCase() === "x",
 				text: match[2].trim(),
-			});
+			};
+			items.push(current);
+			previousWasBlank = false;
+			continue;
 		}
+		const isBlank = text.trim() === "";
+		if (isTopLevelOrMarker(text) || (isBlank && previousWasBlank)) {
+			current = null;
+			previousWasBlank = false;
+			continue;
+		}
+		if (current) {
+			current.text += `\n${text}`;
+			current.lineCount++;
+		}
+		previousWasBlank = isBlank;
+	}
+	for (const item of items) {
+		item.text = item.text.trimEnd();
 	}
 	return items;
 }
@@ -268,18 +349,63 @@ export function timelineLineMatches(line: string, item: TimelineItem): boolean {
 	);
 }
 
+/**
+ * Range-aware staleness guard (AGENTS.md 1.4.2): re-parses exactly the
+ * item's own `[line, line + lineCount - 1]` span in isolation and checks it
+ * still reproduces the same item, including any absorbed continuation
+ * lines. Re-running `parseTimeline`/`parseTodo` on that narrow span (rather
+ * than hand-rolling a second comparison) guarantees this guard can never
+ * drift out of sync with what a real reload would parse.
+ */
+export function timelineRangeMatches(lines: string[], item: TimelineItem): boolean {
+	const reparsed = parseTimeline(lines, { start: item.line, end: item.line + item.lineCount - 1 });
+	if (reparsed.length !== 1) return false;
+	const candidate = reparsed[0];
+	return (
+		candidate.line === item.line &&
+		candidate.lineCount === item.lineCount &&
+		candidate.start === item.start &&
+		candidate.end === item.end &&
+		candidate.category === item.category &&
+		candidate.description === item.description
+	);
+}
+
+/** Same as `timelineRangeMatches`, for To-Do items. */
+export function todoRangeMatches(lines: string[], item: TodoItem): boolean {
+	const reparsed = parseTodo(lines, { start: item.line, end: item.line + item.lineCount - 1 });
+	if (reparsed.length !== 1) return false;
+	const candidate = reparsed[0];
+	return (
+		candidate.line === item.line &&
+		candidate.lineCount === item.lineCount &&
+		candidate.checked === item.checked &&
+		candidate.text === item.text
+	);
+}
+
+/** Replaces the lines `[lineIndex, lineIndex + lineCount - 1]` with `replacement` (split on `\n`) and returns the new full content. */
+export function replaceLineRangeAt(content: string, lineIndex: number, lineCount: number, replacement: string): string {
+	const lines = content.split("\n");
+	lines.splice(lineIndex, lineCount, ...replacement.split("\n"));
+	return lines.join("\n");
+}
+
+/** Removes the lines `[lineIndex, lineIndex + lineCount - 1]` and returns the new full content. */
+export function removeLineRangeAt(content: string, lineIndex: number, lineCount: number): string {
+	const lines = content.split("\n");
+	lines.splice(lineIndex, lineCount);
+	return lines.join("\n");
+}
+
 /** Replaces a single line (by original index) and returns the new full content. */
 export function replaceLineAt(content: string, lineIndex: number, newLine: string): string {
-	const lines = content.split("\n");
-	lines[lineIndex] = newLine;
-	return lines.join("\n");
+	return replaceLineRangeAt(content, lineIndex, 1, newLine);
 }
 
 /** Removes a single line (by original index) and returns the new full content. */
 export function removeLineAt(content: string, lineIndex: number): string {
-	const lines = content.split("\n");
-	lines.splice(lineIndex, 1);
-	return lines.join("\n");
+	return removeLineRangeAt(content, lineIndex, 1);
 }
 
 /**

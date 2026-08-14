@@ -62,12 +62,12 @@ describe("computeDashboardStats", () => {
 				date: new Date(2026, 6, 14),
 				parsed: {
 					timeline: [
-						{ line: 0, start: "09:00", end: "10:30", category: "Work", description: "work task" },
-						{ line: 1, start: "11:00", end: "12:00", category: "Study", description: "study task" },
+						{ line: 0, lineCount: 1, start: "09:00", end: "10:30", category: "Work", description: "work task" },
+						{ line: 1, lineCount: 1, start: "11:00", end: "12:00", category: "Study", description: "study task" },
 					],
 					todos: [
-						{ line: 2, checked: true, text: "a" },
-						{ line: 3, checked: false, text: "b" },
+						{ line: 2, lineCount: 1, checked: true, text: "a" },
+						{ line: 3, lineCount: 1, checked: false, text: "b" },
 					],
 				} satisfies ParsedDailyNote,
 			},
@@ -116,8 +116,8 @@ describe("computeDashboardStats", () => {
 				date: today,
 				parsed: {
 					timeline: [
-						{ line: 0, start: "09:00", end: "10:00", category: "Work", description: "a" },
-						{ line: 1, start: "10:00", end: "11:00", category: "OldRenamedCategory", description: "b" },
+						{ line: 0, lineCount: 1, start: "09:00", end: "10:00", category: "Work", description: "a" },
+						{ line: 1, lineCount: 1, start: "10:00", end: "11:00", category: "OldRenamedCategory", description: "b" },
 					],
 					todos: [],
 				} satisfies ParsedDailyNote,
@@ -139,7 +139,7 @@ describe("computeDashboardStats", () => {
 			{
 				date: today,
 				parsed: {
-					timeline: [{ line: 0, start: "09:00", end: "10:00", category: "work", description: "a" }],
+					timeline: [{ line: 0, lineCount: 1, start: "09:00", end: "10:00", category: "work", description: "a" }],
 					todos: [],
 				} satisfies ParsedDailyNote,
 			},
