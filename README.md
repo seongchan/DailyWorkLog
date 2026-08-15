@@ -123,6 +123,9 @@ Rollback plan is documented in the runbook.
 - A continuation line can't itself start like a new time range (`09:00 - 10:00 ...`) or a checkbox (`- [ ] ...`) — it would otherwise be misread as a separate new item the next time the note is parsed. The sidebar blocks saving a description that would do this; if you're editing the note directly, just avoid starting a note line that way.
 - A single blank line stays part of the item as a paragraph break, but **two or more blank lines in a row end it right there** — the rest is left in the file untouched, just no longer part of that item, so it stops showing in the sidebar and won't be affected by editing that item. Saving from the sidebar automatically collapses 3+ blank lines down to 1.
 
+#### A note on HTML tags
+
+When viewing Event/To-Do content in the sidebar, HTML tags are stripped out. This uses simple tag-pattern matching (`<...>`), so writing a literal inequality comparison in a description (e.g. `3 < 5`, `10 > 2`) can be misread as a tag and disappear from the sidebar/export. If you need `<`/`>` as literal text, use the HTML entities `&lt;`/`&gt;` instead.
 
 ## Settings
 
@@ -140,6 +143,10 @@ npm run build   # type-check (tsc) + production build
 ```
 
 ## Changelog
+
+### 0.4.3 (2026-08-15)
+
+- Fixed the sidebar view (Events, To-Dos) to strip HTML tags from content when displaying it.
 
 ### 0.4.2 (2026-08-14)
 

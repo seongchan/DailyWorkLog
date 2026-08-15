@@ -3,7 +3,7 @@ import * as React from "react";
 import { useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { t } from "../i18n";
-import { isTopLevelOrMarker, TIME_VALUE_REGEX, type MarkerLanguage, type TimelineItem } from "../parser";
+import { isTopLevelOrMarker, stripHtml, TIME_VALUE_REGEX, type MarkerLanguage, type TimelineItem } from "../parser";
 import type { CustomCategory } from "../settings";
 
 export interface EventEntryValues {
@@ -38,17 +38,24 @@ function TimelineModalContent({
 	const [start, setStart] = useState(initial ? initial.start : defaultStart);
 	const [end, setEnd] = useState(initial ? initial.end : defaultEnd);
 	const [category, setCategory] = useState<string | undefined>(initial ? initial.category : undefined);
-	const [description, setDescription] = useState(initial ? initial.description : "");
+	// The textarea shows the HTML-stripped form for readability (imsi_todo.md
+	// follow-up); the original raw markup is only restored on save, and only
+	// if this field was never touched, so a plugin like Editing Toolbar that
+	// wrote raw <font>/<b> tags doesn't get its formatting silently deleted
+	// just from opening and re-saving an event without editing the text.
+	const [description, setDescription] = useState(initial ? stripHtml(initial.description) : "");
 
 	const handleSave = (): void => {
 		if (!TIME_VALUE_REGEX.test(start) || !TIME_VALUE_REGEX.test(end)) {
 			new Notice(t("invalidTimeFormat", language));
 			return;
 		}
+		const isDescriptionUnchanged = initial !== null && description === stripHtml(initial.description);
+		const rawDescription = isDescriptionUnchanged ? initial.description : description;
 		// Cap consecutive blank lines at one (3+ newlines in a row collapse to
 		// exactly 2) — a run of several blank lines carries no extra meaning
 		// over a single paragraph break, just extra stored lineCount.
-		const trimmedDescription = description.trim().replace(/\n{3,}/g, "\n\n");
+		const trimmedDescription = rawDescription.trim().replace(/\n{3,}/g, "\n\n");
 		// A continuation line shaped like a real Timeline/To-Do line would be
 		// misread as a new top-level item on the next parse instead of staying
 		// part of this description (AGENTS.md 1.4.2) — reject rather than
