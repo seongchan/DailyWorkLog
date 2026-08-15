@@ -4,6 +4,8 @@ dist/
 
 # Internal-only planning docs — not part of the public repo.
 ref_docs/
+imsi_todo.md
+imsi.md
 
 # OS / editor / personal tool config — not part of the public repo.
 # (.gitignore, .agents/, .github/ are intentionally NOT listed here — they're
