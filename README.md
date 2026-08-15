@@ -17,7 +17,6 @@ An Obsidian plugin that visualizes daily time tracking (Events) and To-Do lists 
 - **Two independent themes**: a Light/Dark toggle just for the sidebar (separate from Obsidian's own theme, popups always follow the system theme), and Work Insights that follows Obsidian's theme automatically.
 - **Work Insights**: a vault summary — total notes in configured folder, current streak, time window filtering (7d/30d/90d/All), To-Do completion rate, total event time and daily average, category time breakdown visualization (Multi-Segment Progress Bar), and recent note activity history.
 
-
 ## Daily Note Format
 
 Daily notes must be named `YYYY-MM-DD.md`. A new note created through the plugin looks like this:
@@ -40,7 +39,6 @@ Free-form notes go here — not parsed or shown in the sidebar.
 - The `[Category]` tag right after the time range is optional — `- 9:00 - 10:30 Team meeting` (no category) still works.
 - Blocks can appear in any order.
 - Notes written before this format existed (`# _Event` etc., with a leading underscore) keep working — the plugin recognizes both spellings.
-- If none of the three headings are present, the plugin falls back to treating any `- [ ]`/`- [x]` line as a To-Do and any `- HH:mm - HH:mm ...` line as an Event, anywhere in the file.
 
 ## Installation
 
@@ -60,9 +58,11 @@ npm run build   # outputs dist/main.js, dist/manifest.json, dist/styles.css
 For active development, use `npm run dev` instead — it rebuilds automatically on every change (esbuild watch mode).
 
 > #### **[!TIP]**  
+>
 > **Switching from DayTime Tracker?** That plugin stores its data as `timeline-logs` / `timeline-todos` YAML frontmatter properties instead of plain body text. `scripts/migrate-from-daytimetracker.mjs` converts your existing daily notes to this plugin's format.
 >
 > This script is only in the source repository, not in the release download (the release only contains `main.js`/`manifest.json`/`styles.css`) — you'll need to clone this repo and run `npm install` first:
+>
 > ```bash
 > git clone https://github.com/seongchan/DailyWorkLog.git
 > cd DailyWorkLog
@@ -70,6 +70,7 @@ For active development, use `npm run dev` instead — it rebuilds automatically 
 > node scripts/migrate-from-daytimetracker.mjs <path-to-your-vault>            # dry run — writes nothing, just previews
 > node scripts/migrate-from-daytimetracker.mjs <path-to-your-vault> --write    # actually rewrite the files
 > ```
+>
 > Always run the dry run first and back up your vault before using `--write` — this rewrites daily notes in place and there's no undo. See the comment at the top of the script for exactly what does and doesn't get migrated.
 
 ## Usage
@@ -170,7 +171,6 @@ npm run build   # type-check (tsc) + production build
   - **Renamed**: updated the view name from 'Dashboard' to 'Work Insights' for better clarity.
 
 ### 0.3.1 (2026-08-07)
-
 
 - **Added a DayTime Tracker migration script**: `scripts/migrate-from-daytimetracker.mjs` — converts existing daily notes written by DayTime Tracker (stored in `timeline-logs`/`timeline-todos` frontmatter properties) into this plugin's body-text format. Not included in the release download — you need to clone the source repository to use it (see the tip under "Installation" above).
 
