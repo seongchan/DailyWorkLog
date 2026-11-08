@@ -1,7 +1,7 @@
 import { ItemView, TFile, Vault, type TAbstractFile, type WorkspaceLeaf } from "obsidian";
 import type DailyWorkLogPlugin from "./main";
 import { parseDailyNote, type MarkerLanguage, type ParsedDailyNote } from "./parser";
-import { formatDateBasename, isInDailyNoteFolder, parseDateFromBasename } from "./dailyNote";
+import { formatDateBasename, parseDateFromNotePath } from "./dailyNote";
 import { computeDashboardStats, getRecentWindowStart, type DashboardStats } from "./dashboardCollector";
 import { getTextColorForBackground } from "./components/colorUtils";
 import { t } from "./i18n";
@@ -111,12 +111,12 @@ export class DashboardView extends ItemView {
 	private collectDailyNoteFiles(): DailyNoteFile[] {
 		const result: DailyNoteFile[] = [];
 		const folderSetting = this.plugin.settings.dailyNoteFolder;
+		const dateFormat = this.plugin.settings.dateFormat;
 		const normalizedFolder = folderSetting.trim().replace(/^\/+|\/+$/g, "");
 
 		const consider = (file: TAbstractFile) => {
 			if (!(file instanceof TFile) || file.extension !== "md") return;
-			if (!isInDailyNoteFolder(file.path, folderSetting)) return;
-			const date = parseDateFromBasename(file.basename);
+			const date = parseDateFromNotePath(file.path, folderSetting, dateFormat);
 			if (date) result.push({ file, date });
 		};
 

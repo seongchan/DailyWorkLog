@@ -1,7 +1,7 @@
-import { Notice, TFile } from "obsidian";
+import { Notice, TFile, type Vault } from "obsidian";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { buildSkeletonContent, formatDateBasename, formatDateFilename, isSameDate, parseDateFromBasename } from "../dailyNote";
+import { buildSkeletonContent, formatDateBasename, formatNoteFilePath, isSameDate, parseDateFromNotePath } from "../dailyNote";
 import { t, WEEKDAYS } from "../i18n";
 import { ConfirmDeleteModal } from "../modals/ConfirmDeleteModal";
 import { TimelineModal, type EventEntryValues } from "../modals/TimelineModal";
@@ -59,6 +59,22 @@ function todoFirstLine(item: TodoItem): string {
 	return stripHtml(item.text.split("\n")[0]);
 }
 
+/**
+ * A dynamic-folder `dateFormat` (e.g. `YYYY/MM/YYYY-MM-DD`) needs every
+ * intermediate segment created before the file itself, and `createFolder`
+ * throws on a segment that already exists — so each level is checked first.
+ */
+async function ensureFolderPath(vault: Vault, folderPath: string): Promise<void> {
+	const segments = folderPath.split("/").filter(Boolean);
+	let current = "";
+	for (const segment of segments) {
+		current = current ? `${current}/${segment}` : segment;
+		if (!vault.getAbstractFileByPath(current)) {
+			await vault.createFolder(current);
+		}
+	}
+}
+
 function formatDateHeader(date: Date, language: MarkerLanguage): string {
 	const basename = formatDateBasename(date);
 	if (isSameDate(date, new Date())) {
@@ -101,7 +117,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 		const run = async (): Promise<void> => {
 			const file = plugin.app.workspace.getActiveFile();
 			if (!file) return;
-			const resolved = parseDateFromBasename(file.basename) ? file : null;
+			const resolved = parseDateFromNotePath(file.path, plugin.settings.dailyNoteFolder, plugin.settings.dateFormat) ? file : null;
 			if (cancelled) return;
 			setActiveFile(resolved);
 			if (!resolved) {
@@ -243,14 +259,13 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 
 	const openTodayNote = async (): Promise<void> => {
 		const today = new Date();
-		const filename = formatDateFilename(today);
-		const folder = plugin.settings.dailyNoteFolder.trim().replace(/^\/+|\/+$/g, "");
-		const filePath = folder ? `${folder}/${filename}` : filename;
+		const filePath = formatNoteFilePath(today, plugin.settings.dailyNoteFolder, plugin.settings.dateFormat);
 
 		let file = plugin.app.vault.getAbstractFileByPath(filePath);
 		if (!(file instanceof TFile)) {
-			if (folder && !plugin.app.vault.getAbstractFileByPath(folder)) {
-				await plugin.app.vault.createFolder(folder);
+			const lastSlash = filePath.lastIndexOf("/");
+			if (lastSlash !== -1) {
+				await ensureFolderPath(plugin.app.vault, filePath.slice(0, lastSlash));
 			}
 			file = await plugin.app.vault.create(filePath, buildSkeletonContent(language));
 		}
@@ -264,7 +279,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 
 	const exportToPdf = async (): Promise<void> => {
 		if (!activeFile) return;
-		const dateForFile = parseDateFromBasename(activeFile.basename);
+		const dateForFile = parseDateFromNotePath(activeFile.path, plugin.settings.dailyNoteFolder, plugin.settings.dateFormat);
 		const dateHeader = dateForFile ? formatDateHeader(dateForFile, language) : activeFile.basename;
 
 		const html = buildExportHtml({
@@ -344,7 +359,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ plugin, refreshToken
 		);
 	}
 
-	const dateForFile = parseDateFromBasename(activeFile.basename);
+	const dateForFile = parseDateFromNotePath(activeFile.path, plugin.settings.dailyNoteFolder, plugin.settings.dateFormat);
 	if (!dateForFile) return null;
 
 	const hours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);

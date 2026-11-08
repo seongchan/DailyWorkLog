@@ -1,4 +1,5 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
+import { DEFAULT_DATE_FORMAT, formatNoteFilePath, parseDateFromNotePath } from "./dailyNote";
 import { FolderSuggest } from "./FolderSuggest";
 import { t } from "./i18n";
 import type DailyWorkLogPlugin from "./main";
@@ -7,6 +8,28 @@ import { DEFAULT_CATEGORIES, type SidebarTheme } from "./settings";
 
 const MAX_CATEGORIES = 10;
 const MAX_CATEGORY_NAME_LENGTH = 10;
+
+/**
+ * The core "Daily notes" plugin's settings shape (`folder`/`format`) isn't
+ * part of Obsidian's public API/typings — `internalPlugins` is undocumented
+ * and could change or be absent across versions, hence the try/catch and
+ * defensive optional-chaining throughout `getCoreDailyNotesSettings` below.
+ */
+interface CoreDailyNotesOptions {
+	folder?: string;
+	format?: string;
+}
+
+interface CoreDailyNotesPlugin {
+	enabled?: boolean;
+	instance?: { options?: CoreDailyNotesOptions };
+}
+
+interface AppWithInternalPlugins {
+	internalPlugins?: {
+		getPluginById?: (id: string) => CoreDailyNotesPlugin | undefined;
+	};
+}
 
 /**
  * DayTime Tracker-parity settings surface (AGENTS.md §2, design.md §14):
@@ -84,8 +107,56 @@ export class DailyWorkLogSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.dailyNoteFolder = value.trim();
 						await this.plugin.saveSettings();
+						updateDateFormatPreview();
 					});
 				new FolderSuggest(this.app, text.inputEl);
+			});
+
+		const previewEl = containerEl.createEl("p", { cls: "dwl-date-format-preview" });
+		const updateDateFormatPreview = (): void => {
+			const { dailyNoteFolder, dateFormat } = this.plugin.settings;
+			const previewPath = formatNoteFilePath(new Date(), dailyNoteFolder, dateFormat);
+			const roundTrips = parseDateFromNotePath(previewPath, dailyNoteFolder, dateFormat) !== null;
+			previewEl.setText(roundTrips ? t("settingDateFormatPreview", lang).replace("%s", previewPath) : t("settingDateFormatInvalid", lang));
+			previewEl.toggleClass("dwl-date-format-preview-invalid", !roundTrips);
+		};
+
+		new Setting(containerEl)
+			.setName(t("settingDateFormatName", lang))
+			.setDesc(t("settingDateFormatDesc", lang))
+			.addText((text) => {
+				text
+					.setPlaceholder(t("settingDateFormatPlaceholder", lang))
+					.setValue(this.plugin.settings.dateFormat)
+					.onChange(async (value) => {
+						const trimmed = value.trim();
+						if (!trimmed) return; // an empty format is meaningless; keep the last valid value until the user types one
+						this.plugin.settings.dateFormat = trimmed;
+						await this.plugin.saveSettings();
+						this.plugin.refreshViews();
+						updateDateFormatPreview();
+					});
+			});
+
+		updateDateFormatPreview();
+
+		new Setting(containerEl)
+			.setName(t("btnImportFromCoreDailyNotes", lang))
+			.setDesc(t("importFromCoreDailyNotesDesc", lang))
+			.addButton((btn) => {
+				btn.setButtonText(t("btnImportFromCoreDailyNotes", lang)).onClick(async () => {
+					const coreSettings = this.getCoreDailyNotesSettings();
+					if (!coreSettings) {
+						new Notice(t("noticeImportNotFound", lang));
+						return;
+					}
+					this.plugin.settings.dailyNoteFolder = coreSettings.folder;
+					this.plugin.settings.dateFormat = coreSettings.format;
+					await this.plugin.saveSettings();
+					this.plugin.refreshViews();
+					new Notice(t("noticeImportSuccess", lang));
+					this.display();
+				});
 			});
 
 		new Setting(containerEl)
@@ -120,6 +191,31 @@ export class DailyWorkLogSettingTab extends PluginSettingTab {
 			);
 
 		this.renderCategorySection(containerEl, lang);
+	}
+
+	/**
+	 * Reads the core "Daily notes" plugin's `folder`/`format` options for the
+	 * one-time Import button. Returns `null` when that plugin is disabled or
+	 * its internal shape doesn't match what's expected (see the interfaces
+	 * above) — never throws, so an Obsidian-version mismatch just disables
+	 * the import rather than breaking this settings tab.
+	 */
+	private getCoreDailyNotesSettings(): { folder: string; format: string } | null {
+		try {
+			const withInternal = this.app as unknown as AppWithInternalPlugins;
+			const corePlugin = withInternal.internalPlugins?.getPluginById?.("daily-notes");
+			if (!corePlugin?.enabled) return null;
+
+			const options = corePlugin.instance?.options;
+			if (!options) return null;
+
+			return {
+				folder: (options.folder ?? "").trim(),
+				format: options.format?.trim() || DEFAULT_DATE_FORMAT,
+			};
+		} catch {
+			return null;
+		}
 	}
 
 	private renderCategorySection(containerEl: HTMLElement, lang: MarkerLanguage): void {

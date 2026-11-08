@@ -65,6 +65,15 @@ export type UIStringKey =
 	| "settingFolderName"
 	| "settingFolderDesc"
 	| "settingFolderPlaceholder"
+	| "settingDateFormatName"
+	| "settingDateFormatDesc"
+	| "settingDateFormatPlaceholder"
+	| "settingDateFormatPreview"
+	| "settingDateFormatInvalid"
+	| "btnImportFromCoreDailyNotes"
+	| "importFromCoreDailyNotesDesc"
+	| "noticeImportSuccess"
+	| "noticeImportNotFound"
 	| "settingLanguageName"
 	| "settingLanguageDesc"
 	| "alertStartBeforeEnd"
@@ -153,6 +162,16 @@ export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 		settingFolderName: "Daily Note Folder",
 		settingFolderDesc: "Folder where today's daily note will be created. Leave empty to use the vault root.",
 		settingFolderPlaceholder: "Vault root",
+		settingDateFormatName: "Date Format",
+		settingDateFormatDesc:
+			"Moment.js format token string for the daily note's filename (e.g. YYYY-MM-DD). A '/' creates dynamic year/month subfolders under the folder above, matching the core Daily Notes plugin's own format option.",
+		settingDateFormatPlaceholder: "YYYY-MM-DD",
+		settingDateFormatPreview: "Today's note would be saved as: %s",
+		settingDateFormatInvalid: "This format doesn't produce a valid date — check the token syntax.",
+		btnImportFromCoreDailyNotes: "Import Format from the Daily Notes Core Plugin",
+		importFromCoreDailyNotesDesc: "One-time copy of the folder and format from Obsidian's built-in Daily Notes plugin, if enabled.",
+		noticeImportSuccess: "Imported folder and format from the core Daily Notes plugin.",
+		noticeImportNotFound: "The core Daily Notes plugin isn't enabled, so there's nothing to import.",
 		settingLanguageName: "Language",
 		settingLanguageDesc:
 			"Display language for the Event/ToDo/Diary markers inserted into new daily notes. " +
@@ -243,6 +262,16 @@ export const STRINGS: Record<MarkerLanguage, Record<UIStringKey, string>> = {
 		settingFolderName: "날짜 노트 생성 폴더",
 		settingFolderDesc: "'오늘' 버튼으로 노트를 생성할 때 사용할 폴더를 지정합니다. 비워두면 볼트 최상위 폴더에 생성됩니다.",
 		settingFolderPlaceholder: "볼트 최상위 폴더",
+		settingDateFormatName: "날짜 형식",
+		settingDateFormatDesc:
+			"데일리 노트 파일명에 사용할 Moment.js 형식 토큰 문자열입니다 (예: YYYY-MM-DD). '/'를 포함하면 위 폴더 아래에 연/월 등 동적 하위 폴더가 생성됩니다 — 코어 데일리 노트 플러그인의 형식 설정과 동일한 방식입니다.",
+		settingDateFormatPlaceholder: "YYYY-MM-DD",
+		settingDateFormatPreview: "오늘 노트는 다음 경로에 저장됩니다: %s",
+		settingDateFormatInvalid: "이 형식으로는 올바른 날짜를 만들 수 없습니다 — 토큰 표기를 확인해 주세요.",
+		btnImportFromCoreDailyNotes: "코어 플러그인 일일 노트 형식 가져오기",
+		importFromCoreDailyNotesDesc: "Obsidian 기본 제공 데일리 노트 플러그인이 켜져 있다면, 그 폴더와 형식 설정을 1회성으로 복사해옵니다.",
+		noticeImportSuccess: "코어 데일리 노트 플러그인의 폴더/형식 설정을 가져왔습니다.",
+		noticeImportNotFound: "코어 데일리 노트 플러그인이 켜져 있지 않아 가져올 설정이 없습니다.",
 		settingLanguageName: "언어",
 		settingLanguageDesc:
 			"새 일일 노트를 생성할 때 삽입되는 Event/ToDo/Diary 마커의 표시 언어입니다. " +

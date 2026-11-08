@@ -10,16 +10,16 @@ An Obsidian plugin that visualizes daily time tracking (Events) and To-Do lists 
 - **Categories**: color-coded categories (5 built-in — Work/Study/Rest/Reading/Exercise — plus up to 10 custom), stored as a `[Category]` tag right in the note body.
 - **Collapsible To-Do panel**: docked at the bottom of the sidebar, with inline add/check/delete.
 - **PDF / HTML export**: turn any day into a standalone, printable HTML file.
-- **Configurable daily note folder**: notes don't have to live at the vault root, with folder autocomplete in settings.
+- **Configurable daily note folder and filename format**: notes don't have to live at the vault root, with folder autocomplete in settings. The filename format is a moment.js token string (default `YYYY-MM-DD`) — including a `/` produces dynamic year/month subfolders, matching the core Daily Notes plugin's own `format` option, and its folder/format can be imported with one click.
 - **Minimal metadata**: everything is read from three plain markdown headings — no frontmatter needed.
 - **Multi-language, backward-compatible markers**: notes use `Event` / `ToDo` / `Diary` (or Korean `이벤트` / `할일` / `다이어리`) headings; the legacy underscore-prefixed spelling (`_Event` etc.) from older notes is still recognized so nothing breaks.
 - **Automatic UI language detection**: picked up from Obsidian's own language on first run, overridable in settings.
 - **Two independent themes**: a Light/Dark toggle just for the sidebar (separate from Obsidian's own theme, popups always follow the system theme), and Work Insights that follows Obsidian's theme automatically.
 - **Work Insights**: a vault summary — total notes in configured folder, current streak, time window filtering (7d/30d/90d/All), To-Do completion rate, total event time and daily average, category time breakdown visualization (Multi-Segment Progress Bar), and recent note activity history.
 
-## Daily Note Format
+## Note Format
 
-Daily notes must be named `YYYY-MM-DD.md`. A new note created through the plugin looks like this:
+Notes are named `YYYY-MM-DD.md` by default (configurable — see **Date Format** under Settings below). A new note created through the plugin looks like this:
 
 ```markdown
 # Event
@@ -131,7 +131,8 @@ When viewing Event/To-Do content in the sidebar, HTML tags are stripped out. Thi
 ## Settings
 
 - **Day Start Hour / Day End Hour**: the hour range shown on the grid.
-- **Daily Note Folder**: where new daily notes are created (vault root by default), with folder autocomplete.
+- **Daily Note Folder**: where new notes are created (vault root by default), with folder autocomplete.
+- **Date Format**: a moment.js format token string for the note's filename (default `YYYY-MM-DD`). Including a `/` (e.g. `YYYY/MM/YYYY-MM-DD`) creates dynamic year/month subfolders under the folder above, the same trick the core Daily Notes plugin's own format option supports. A preview under the field shows exactly where today's note would be saved. **Import Format from the Daily Notes Core Plugin** copies the folder and format from Obsidian's built-in Daily Notes plugin (if enabled) into these two fields, one time — it doesn't stay in sync afterward, so re-click it if you later change the core plugin's settings.
 - **Language**: auto-detected from Obsidian's own UI language on first run. Controls the marker labels inserted into new notes and all sidebar/settings text — existing notes in either language keep parsing correctly regardless of this setting.
 - **Background Theme Mode**: Light or Dark, for the sidebar only.
 - **Category Management**: add, rename, recolor, or delete categories, or reset to the defaults.
@@ -144,6 +145,11 @@ npm run build   # type-check (tsc) + production build
 ```
 
 ## Changelog
+
+### 0.5.0 (2026-10-09)
+
+- **Configurable Date Format**: added a `dateFormat` setting (moment.js format tokens, default `YYYY-MM-DD`) governing the daily note's filename. A `/` in the format (e.g. `YYYY/MM/YYYY-MM-DD`) now creates dynamic year/month subfolders under the configured Daily Note Folder — the same mechanism the core Daily Notes plugin's own `format` option uses. A live preview under the field shows exactly where today's note would be saved.
+- **Import Format from the Daily Notes Core Plugin**: a one-time button in Settings copies the folder and format from Obsidian's built-in Daily Notes plugin (if enabled), so you don't have to re-type a format you've already configured there. It copies once and doesn't stay in sync afterward.
 
 ### 0.4.3 (2026-08-15)
 

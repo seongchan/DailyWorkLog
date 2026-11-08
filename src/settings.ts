@@ -1,3 +1,4 @@
+import { DEFAULT_DATE_FORMAT } from "./dailyNote";
 import type { MarkerLanguage } from "./parser";
 
 /**
@@ -48,6 +49,15 @@ export interface DailyWorkLogSettings {
 	endHour: number;
 	/** Vault-relative folder for daily notes. Empty string = vault root. */
 	dailyNoteFolder: string;
+	/**
+	 * Moment.js format token string governing both the note's filename AND,
+	 * via any `/` it contains, dynamic year/month subfolders nested under
+	 * `dailyNoteFolder` — matching the core "Daily notes" plugin's own
+	 * `format` setting shape. Default `DEFAULT_DATE_FORMAT` reproduces the
+	 * plugin's original fixed `YYYY-MM-DD.md` behavior exactly, so existing
+	 * installs are unaffected until a user opts into a custom format.
+	 */
+	dateFormat: string;
 	/** Up to 10 entries; see CustomCategory for how these map into note bodies. */
 	categories: CustomCategory[];
 }
@@ -58,6 +68,7 @@ export const DEFAULT_SETTINGS: DailyWorkLogSettings = {
 	startHour: 0,
 	endHour: 24,
 	dailyNoteFolder: "",
+	dateFormat: DEFAULT_DATE_FORMAT,
 	categories: [...DEFAULT_CATEGORIES],
 };
 

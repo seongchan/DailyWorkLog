@@ -990,3 +990,14 @@
 	margin-top: 0;
 	margin-bottom: 12px;
 }
+
+.dwl-date-format-preview {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	font-family: var(--font-monospace);
+	margin: 4px 0 0;
+}
+
+.dwl-date-format-preview-invalid {
+	color: var(--text-error);
+}
