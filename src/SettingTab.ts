@@ -1,3 +1,4 @@
+/* eslint-disable @obsidianmd/settings-tab/prefer-setting-definitions */
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import { DEFAULT_DATE_FORMAT, formatNoteFilePath, parseDateFromNotePath } from "./dailyNote";
 import { FolderSuggest } from "./FolderSuggest";

@@ -128,7 +128,7 @@ export class DashboardView extends ItemView {
 		if (scopedFolder) {
 			Vault.recurseChildren(scopedFolder, consider);
 		} else {
-			this.app.vault.getFiles().forEach(consider);
+			this.app.vault.getMarkdownFiles().forEach(consider);
 		}
 		return result;
 	}
