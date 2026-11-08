@@ -146,6 +146,10 @@ npm run build   # type-check (tsc) + production build
 
 ## Changelog
 
+### 0.5.3 (2026-11-09)
+
+- **Settings Tab Lint Rule Compliance**: Updated the settings tab linter suppression comment with proper rationale and scope to comply with Obsidian Community Plugin review guidelines.
+
 ### 0.5.2 (2026-11-09)
 
 - **Obsidian Guideline Compliance**: Switched `moment` import to Obsidian's bundled instance instead of bundling it directly.
