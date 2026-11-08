@@ -146,6 +146,12 @@ npm run build   # type-check (tsc) + production build
 
 ## Changelog
 
+### 0.5.2 (2026-11-09)
+
+- **Obsidian Guideline Compliance**: Switched `moment` import to Obsidian's bundled instance instead of bundling it directly.
+- **Performance Optimization**: Optimized note scanning in Work Insights to inspect markdown (`.md`) files only.
+- **Settings Tab Lint Handling**: Suppressed settings tab linter warning to preserve backward compatibility and dynamic UI controls.
+
 ### 0.5.1 (2026-11-09)
 
 - **Updated dependencies**: Updated dependency packages.
