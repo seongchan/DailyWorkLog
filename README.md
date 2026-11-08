@@ -146,6 +146,10 @@ npm run build   # type-check (tsc) + production build
 
 ## Changelog
 
+### 0.5.1 (2026-11-09)
+
+- **Updated dependencies**: Updated dependency packages.
+
 ### 0.5.0 (2026-10-09)
 
 - **Configurable Date Format**: added a `dateFormat` setting (moment.js format tokens, default `YYYY-MM-DD`) governing the daily note's filename. A `/` in the format (e.g. `YYYY/MM/YYYY-MM-DD`) now creates dynamic year/month subfolders under the configured Daily Note Folder — the same mechanism the core Daily Notes plugin's own `format` option uses. A live preview under the field shows exactly where today's note would be saved.
