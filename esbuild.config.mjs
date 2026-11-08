@@ -33,16 +33,9 @@ const context = await esbuild.context({
 	banner: { js: banner },
 	entryPoints: ["src/main.ts"],
 	bundle: true,
-	// NOTE: "moment" is intentionally NOT external, unlike "obsidian"/"electron"
-	// below. Obsidian's plugin sandbox only special-cases a small fixed set of
-	// bare `require()` specifiers (this list); "moment" isn't one of them, so
-	// marking it external makes the built main.js call `require("moment")`
-	// at load time, which Obsidian can't resolve — the plugin fails to load
-	// entirely (silently, no error surfaced to the user) rather than just
-	// losing the date-format feature. esbuild bundles the real `moment`
-	// package (a dependency, see package.json) into main.js instead, so it's
-	// self-contained. `src/dailyNote.ts` still imports plain `moment` (not
-	// `import { moment } from "obsidian"`) so it keeps working under Vitest.
+	// "obsidian" is external, so `import { moment } from "obsidian"` resolves to
+	// Obsidian's bundled moment instance at runtime. Vitest mocks "obsidian"
+	// separately in vitest.config.mts so tests run in pure Node.
 	external: [
 		"obsidian",
 		"electron",

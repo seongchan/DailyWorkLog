@@ -5,19 +5,15 @@
  */
 
 /**
- * Imported directly from the `moment` package, not `import { moment } from
- * "obsidian"` — the `obsidian` package ships types only (no runtime JS), so
- * that form can't resolve outside a real Obsidian window and would break
- * this module's Vitest tests (AGENTS.md §4's "zero Obsidian API dependency,
- * pure functions" rule). Unlike "obsidian"/"electron", `moment` is
- * deliberately NOT marked `external` in esbuild.config.mjs — Obsidian's
- * plugin sandbox doesn't special-case a bare `require("moment")`, so leaving
- * it external makes the built main.js fail that require at load time and the
- * whole plugin silently fails to load (see esbuild.config.mjs's comment on
- * the `external` list for the full explanation). esbuild bundles the real
- * `moment` package into main.js instead, so it's self-contained.
+ * `moment` is imported from "obsidian" per Obsidian Community Plugin review
+ * guidelines (which forbids bundling 'moment' directly). Vitest unit tests
+ * resolve "obsidian" via an alias in `vitest.config.mts` so they can run in pure
+ * Node without a real Obsidian window.
  */
-import moment from "moment";
+import { moment } from "obsidian";
+import type MomentType from "moment";
+
+const momentFn = moment as unknown as typeof MomentType;
 import { MARKER_LABELS, type MarkerLanguage } from "./parser";
 
 /**
@@ -45,7 +41,7 @@ export function formatDateBasename(date: Date): string {
  * calendar overflow (`2026-02-31`, `2026-13-01`) in one step.
  */
 export function parseDateFromBasename(source: string, format: string = DEFAULT_DATE_FORMAT): Date | null {
-	const parsed = moment(source, format, true);
+	const parsed = momentFn(source, format, true);
 	return parsed.isValid() ? parsed.toDate() : null;
 }
 
@@ -122,7 +118,7 @@ export function parseDateFromNotePath(filePath: string, dailyNoteFolder: string,
  * aren't created implicitly by this pure formatting step).
  */
 export function formatNoteFilePath(date: Date, dailyNoteFolder: string, format: string = DEFAULT_DATE_FORMAT): string {
-	const relative = moment(date).format(format);
+	const relative = momentFn(date).format(format);
 	const folder = dailyNoteFolder.trim().replace(/^\/+|\/+$/g, "");
 	return `${folder ? `${folder}/` : ""}${relative}.md`;
 }
