@@ -1,4 +1,3 @@
-/* eslint-disable @obsidianmd/settings-tab/prefer-setting-definitions */
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import { DEFAULT_DATE_FORMAT, formatNoteFilePath, parseDateFromNotePath } from "./dailyNote";
 import { FolderSuggest } from "./FolderSuggest";
@@ -42,6 +41,7 @@ interface AppWithInternalPlugins {
  * `getSettingDefinitions()` (Obsidian 1.13.0+) — see AGENTS.md §2 for why
  * that trade-off is intentional here.
  */
+// eslint-disable-next-line @obsidianmd/settings-tab/prefer-setting-definitions -- Preserves backward compatibility (minAppVersion 1.11.0) and dynamic UI controls
 export class DailyWorkLogSettingTab extends PluginSettingTab {
 	private readonly plugin: DailyWorkLogPlugin;
 
